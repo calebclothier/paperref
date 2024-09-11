@@ -1,1 +1,1 @@
-# eureka-ai
+# eureka
