@@ -1,12 +1,11 @@
 import streamlit as st
-import pandas as pd
-
-
 # configure page settings
 st.set_page_config(
     page_title="Paper Library", 
     page_icon='📚',
     layout='wide')
+
+import pandas as pd
 
 # add logo to top left corner
 st.logo(

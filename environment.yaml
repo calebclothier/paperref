@@ -5,6 +5,9 @@ channels:
 dependencies:
   - python=3.12
   - pandas
+  - pyyaml
   - pip
   - pip:
     - streamlit
+    - extra-streamlit-components
+    - pyjwt
