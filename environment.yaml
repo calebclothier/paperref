@@ -11,3 +11,5 @@ dependencies:
     - streamlit
     - extra-streamlit-components
     - pyjwt
+    - firebase-admin
+    - google-cloud-firestore

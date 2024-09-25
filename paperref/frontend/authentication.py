@@ -3,6 +3,13 @@ import streamlit as st
 import extra_streamlit_components as stx
 import jwt
 import yaml
+import firebase_admin
+from firebase_admin import credentials
+
+
+# Initialize the Firebase Admin SDK with your service account credentials
+cred = credentials.Certificate("firebase-key.json")
+firebase_admin.initialize_app(cred)
 
 
 # load cookie manager
@@ -121,6 +128,10 @@ def logout_user():
 def check_cookie():
     token = get_cookie()
     if token:
+<<<<<<< HEAD
         # TODO: authenticate token
+=======
+        # TODO: authenticate token 
+>>>>>>> 6c5d826 (add: connection to firestore)
         st.session_state.username = token['username']
         st.session_state.authenticated = True

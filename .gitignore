@@ -1,5 +1,6 @@
 # paperref 
 paperref/frontend/config.yaml
+paperref/frontend/firebase-key.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

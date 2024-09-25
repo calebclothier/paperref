@@ -7,6 +7,7 @@ st.set_page_config(
 import pandas as pd
 from authentication import check_cookie
 
+
 # add logo to top left corner
 st.logo(
     "assets/logo/large.png",
