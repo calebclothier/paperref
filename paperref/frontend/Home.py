@@ -6,7 +6,7 @@ st.set_page_config(
 
 import jwt
 import extra_streamlit_components as stx
-from authentication import authenticate_user, logout_user
+from authentication import authenticate_user, logout_user, check_cookie
 
 
 # add logo to top left corner
@@ -15,16 +15,16 @@ st.logo(
     link="https://paperref.com",
     icon_image="assets/logo/small.png")
     
-# check if user is authenticated
-authenticated = st.session_state.get('authenticated', False)
+# check cookies
+check_cookie()
 # if not authenticated, show login/register widget
-if not authenticated:
+if not st.session_state.get('authenticated', False):
     authenticate_user()
 # otherwise show welcome page
 else:
     # FIXME: not properly displaying the username right now
     username = st.session_state.username
-    st.header('Welcome %s' % username)
+    st.header(f'Welcome {username}')
     
     
 with st.sidebar:
