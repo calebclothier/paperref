@@ -22,6 +22,7 @@ st.sidebar.header("Recommended")
 
 # check authentication
 check_cookie()
+# if not authenticated, stop page rendering
 if not st.session_state.get('authenticated', False):
     st.error("You must be logged in to view this page.")
     st.stop()
