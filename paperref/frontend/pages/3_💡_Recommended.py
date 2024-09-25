@@ -1,9 +1,6 @@
 import streamlit as st
-# configure page settings
-st.set_page_config(
-    page_title='Recommended', 
-    page_icon='💡',
-    layout='wide')
+st.set_page_config(page_title='Recommended', page_icon='💡', layout='wide')
+
 from authentication import check_cookie
 
 
