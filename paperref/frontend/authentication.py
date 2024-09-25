@@ -1,8 +1,8 @@
+from datetime import datetime, timedelta
 import streamlit as st
 import extra_streamlit_components as stx
 import jwt
 import yaml
-from datetime import datetime, timedelta
 
 
 # load cookie manager
@@ -18,13 +18,15 @@ cookie_expiry_days = config['cookie']['expiry_days']
 
 
 def login(username, password):
-    # authenticate existing user 
+    # TODO: perform authentication with backend
+    # store username
     st.session_state.username = username
     return True
-    
-    
+
+
 def register(username, email, password):
-    # authenticate new user
+    # TODO: perform authentication with backend
+    # store username
     st.session_state.username = username
     return True
 
@@ -40,17 +42,16 @@ def encode_cookie():
         cookie_key, 
         algorithm='HS256')
     return token
-    
-    
+
+
 def decode_cookie(token):
     # decode cookie JSON
     cookie_dict = jwt.decode(token, cookie_key, algorithms=['HS256'])
     return cookie_dict
-    
-    
+
+
 def get_cookie():
     # get authentication cookie 
-    # cookie_manager = get_cookie_manager()
     token = cookie_manager.get(cookie_name)
     if token is not None:
         cookie_dict = decode_cookie(token)
@@ -66,20 +67,13 @@ def set_cookie():
     token = encode_cookie()
     exp_date = datetime.now() + timedelta(days=cookie_expiry_days)
     cookie_manager.set(cookie_name, token, expires_at=exp_date)
-    
+
 
 def delete_cookie():
     cookie_manager.delete(cookie_name)
-    
-    
+
+
 def authenticate_user():
-    token = get_cookie()
-    if token:
-        if False: # TODO: authenticate token 
-            pass
-        st.session_state.username = token['username']
-        st.session_state.authenticated = True
-        st.rerun()
     # widget for user authentication
     login_tab, register_tab = st.tabs(["Login", "Register"])
     with login_tab:
@@ -109,17 +103,24 @@ def authenticate_user():
             if password != confirm_password:
                 st.error('Passwords must match')
             elif register(username, email, password):
-                # TODO: set cookies     
+                set_cookie()
                 st.session_state.authenticated = True
                 st.rerun()
             else:
                 st.error('Registration failed')
-                
-                
+
+
 def logout_user():
     if not st.session_state.authenticated:
         return 
     delete_cookie()
     st.session_state.authenticated = False
     st.rerun()
-    
+
+
+def check_cookie():
+    token = get_cookie()
+    if token:
+        # TODO: authenticate token
+        st.session_state.username = token['username']
+        st.session_state.authenticated = True
