@@ -4,10 +4,11 @@ channels:
   - conda-forge
 dependencies:
   - python=3.12
-  - pandas
-  - pyyaml
+  - pandas=2.2.0
   - pip
   - pip:
     - streamlit
     - extra-streamlit-components
     - pyjwt
+    - firebase-admin
+    - google-cloud-firestore
