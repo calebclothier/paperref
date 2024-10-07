@@ -1,6 +1,6 @@
 # paperref 
-paperref/frontend/.streamlit
-paperref/backend/.env
+paperref/frontend/src/.streamlit/
+paperref/backend/app/.env
 
 # uv lockfile
 uv.lock

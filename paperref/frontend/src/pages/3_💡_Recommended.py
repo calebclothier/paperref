@@ -1,7 +1,7 @@
 import streamlit as st
 st.set_page_config(page_title='Recommended', page_icon='💡', layout='wide')
 
-from authentication import check_cookie
+from src.api.auth import check_cookie
 
 
 # add logo to top left corner
