@@ -17,7 +17,7 @@ Navigate to `paperref/backend` and run:
 
 ### Starting the frontend web app 
 
-Navigate to `paperref/frontend` and run:
+Navigate to `paperref/frontend/src` and run:
    ```bash
-   uv run streamlit run src/Home.py
+   uv run streamlit run Home.py
    ```
