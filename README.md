@@ -2,15 +2,22 @@
 
 ## Getting Started
 
-1. Create or update the `paperref` conda environment by running one of the following:
-   
+### Installing uv
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+### Starting the backend server 
+
    ```bash
-   conda env create -f environment.yaml
+   cd paperref/backend
+   uv run fastapi dev
    ```
+
+### Starting the frontend web app 
+
    ```bash
-   conda env update -f environment.yaml --prune
-   ```
-3. Start the web app by navigating to `paperref/frontend` and running:
-   ```bash
-   streamlit run Home.py
+   cd paperref/frontend/src
+   uv run streamlit run Home.py
    ```

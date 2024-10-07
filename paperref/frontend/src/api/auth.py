@@ -19,16 +19,13 @@ import extra_streamlit_components as stx
 import jwt
 
 
-# Firebase auth URL
-FIREBASE_AUTH_URL_BASE = "https://identitytoolkit.googleapis.com/v1/accounts:"
-
 # Load cookie manager for handling user authentication cookies
 cookie_manager = stx.CookieManager()
 
 
 def login(email, password):
     """
-    Performs user login through the Firebase REST API.
+    Performs user login through the PaperRef backend REST API.
 
     Args:
         email (str): The user's email address.
@@ -37,43 +34,30 @@ def login(email, password):
     Returns:
         bool: True if login is successful, False otherwise.
     """
-    url = f"{FIREBASE_AUTH_URL_BASE}signInWithPassword?key={st.secrets['firebase_web_api_key']}"
+    url = f"{st.secrets['backend']['url']}/auth/login"
     headers = {"content-type": "application/json; charset=UTF-8"}
     payload = {
         "email": email,
-        "password": password,
-        "returnSecureToken": True}
+        "password": password}
     try:
         # Perform POST request to Firebase API for user login
         response = requests.post(url, headers=headers, json=payload, timeout=10)
-        # Handle non-200 response codes and display relevant error messages
-        if response.status_code != 200:
-            error_message = response.json().get('error', {}).get('message', "An unknown error occurred.")
-            if error_message == 'INVALID_EMAIL':
-                st.error('Invalid email address.')
-            elif error_message == "INVALID_LOGIN_CREDENTIALS":
-                st.error('Invalid login credentials.')
-            elif error_message == "MISSING_PASSWORD":
-                st.error('Missing password.')
-            elif "TOO_MANY_ATTEMPTS_TRY_LATER" in error_message:
-                st.error("Access to this account has been temporarily disabled due to many failed login attempts.")
-            else:
-                st.error(f"{error_message}")
-            return False
-        # If login successful, store the email in session state
         response = response.json()
-        if "idToken" in response:
+        if response['token'] is not None:
             st.session_state.username = email
             return True
+        else:
+            st.error(response['message'])
+            return False
     except requests.exceptions.HTTPError as error:
-        error_message = json.loads(error.args[1])['error']['message']
-        st.error(f'{error_message}')
+        message = json.loads(error.args[1])['error']['message']
+        st.error(f'{message}')
     return False
 
 
 def register(email, password):
     """
-    Signs up a new user through the Firebase REST API.
+    Signs up a new user through the PaperRef backend REST API.
 
     Args:
         email (str): The user's email address.
@@ -82,35 +66,24 @@ def register(email, password):
     Returns:
         bool: True if registration is successful, False otherwise.
     """
-    url = f"{FIREBASE_AUTH_URL_BASE}signUp?key={st.secrets['firebase_web_api_key']}"
+    url = f"{st.secrets['backend']['url']}/auth/register"
     headers = {"content-type": "application/json; charset=UTF-8"}
     payload = {
         "email": email,
-        "password": password,
-        "returnSecureToken": True}
+        "password": password}
     try:
-        # Perform POST request to Firebase API for user registration
+        # Perform POST request to Firebase API for user login
         response = requests.post(url, headers=headers, json=payload, timeout=10)
-        # Handle non-200 response codes and display relevant error messages
-        if response.status_code != 200:
-            error_message = response.json().get('error', {}).get('message', 'An unknown error occurred.')
-            if "EMAIL_EXISTS" in error_message:
-                st.error("Account already exists for provided email address.")
-            elif "WEAK_PASSWORD" in error_message:
-                st.error("Weak password, must contain at least 6 characters.")
-            elif "INVALID_EMAIL" in error_message:
-                st.error("Invalid email.")
-            else:
-                st.error(f"{error_message}")
-            return False
-        # If registration successful, store the email in session state
         response = response.json()
-        if "idToken" in response:
+        if response['token'] is not None:
             st.session_state.username = email
             return True
+        else:
+            st.error(response['message'])
+            return False
     except requests.exceptions.HTTPError as error:
-        error_message = json.loads(error.args[1])['error']['message']
-        st.error(f'{error_message}')
+        message = json.loads(error.args[1])['error']['message']
+        st.error(f'{message}')
     return False
 
 
@@ -197,7 +170,6 @@ def authenticate_user():
                 set_cookie()
                 st.session_state.authenticated = True
                 st.rerun()
-
     with register_tab:
         st.header("Register")
         # Register form
