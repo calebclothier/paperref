@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi[all]",
+    "requests",
     # "pyjwt",
     # "firebase-admin",
     # "google-cloud-firestore"
