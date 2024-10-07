@@ -10,14 +10,14 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 ### Starting the backend server 
 
-Navigate to `paperref/backend` and run:
    ```bash
+   cd paperref/backend
    uv run fastapi dev
    ```
 
 ### Starting the frontend web app 
 
-Navigate to `paperref/frontend/src` and run:
    ```bash
+   cd paperref/frontend/src
    uv run streamlit run Home.py
    ```
