@@ -1,5 +1,9 @@
 # paperref 
 paperref/frontend/.streamlit
+paperref/backend/.env
+
+# uv lockfile
+uv.lock
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,7 +1,7 @@
 import streamlit as st 
 st.set_page_config(page_title='Home', initial_sidebar_state='expanded')
 
-from authentication import authenticate_user, logout_user, check_cookie
+from .services import authenticate_user, logout_user, check_cookie
 
 
 # add logo to top left corner
