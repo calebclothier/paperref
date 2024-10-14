@@ -28,7 +28,7 @@ jobs:
 
       # Install Ruff with 'uv'
       - name: Install Ruff using uv
-        run: uv add ruff
+        run: uv tool install ruff
 
       # Run Ruff linter
       - name: Run Ruff linter
