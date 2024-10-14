@@ -32,4 +32,4 @@ jobs:
 
       # Run Ruff linter
       - name: Run Ruff linter
-        run: uv tool run ruff
+        run: uv tool run ruff check
