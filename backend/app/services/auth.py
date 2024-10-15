@@ -13,7 +13,7 @@ def login_service(email: str, password: str):
         password (str): The user's password.
 
     Returns:
-        dict: The login token and any error messages
+        dict: The login tokens and any error messages
     """
     url = f"{settings.FIREBASE_AUTH_URL}signInWithPassword?key={settings.FIREBASE_API_KEY}"
     headers = {"content-type": "application/json; charset=UTF-8"}
@@ -21,7 +21,8 @@ def login_service(email: str, password: str):
         "email": email,
         "password": password,
         "returnSecureToken": True}
-    token = None
+    id_token = None
+    refresh_token = None
     message = None
     try:
         # Perform POST request to Firebase API for user login
@@ -41,11 +42,12 @@ def login_service(email: str, password: str):
                 message = f"{error_message}"
         # get idToken if it exists
         response = response.json()
-        token = response.get('idToken', None)
+        id_token = response.get('idToken', None)
+        refresh_token = response.get('refreshToken', None)
     except requests.exceptions.HTTPError as error:
         message = json.loads(error.args[1])['error']['message']
     # return auth response
-    return {'token': token, 'message': message}
+    return {'id_token': id_token, 'refresh_token': refresh_token, 'message': message}
 
 
 def register_service(email: str, password: str):
@@ -57,7 +59,7 @@ def register_service(email: str, password: str):
         password (str): The user's chosen password.
 
     Returns:
-        dict: The login token and any error messages
+        dict: The login tokens and any error messages
     """
     url = f"{settings.FIREBASE_AUTH_URL}signUp?key={settings.FIREBASE_API_KEY}"
     headers = {"content-type": "application/json; charset=UTF-8"}
@@ -65,7 +67,8 @@ def register_service(email: str, password: str):
         "email": email,
         "password": password,
         "returnSecureToken": True}
-    token = None
+    id_token = None
+    refresh_token = None
     message = None
     try:
         # Perform POST request to Firebase API for user login
@@ -83,8 +86,9 @@ def register_service(email: str, password: str):
                 message = f"{error_message}"
         # get idToken if it exists
         response = response.json()
-        token = response.get('idToken', None)
+        id_token = response.get('idToken', None)
+        refresh_token = response.get('refreshToken', None)
     except requests.exceptions.HTTPError as error:
         message = json.loads(error.args[1])['error']['message']
     # return auth response
-    return {'token': token, 'message': message}
+    return {'id_token': id_token, 'refresh_token': refresh_token, 'message': message}

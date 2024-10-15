@@ -43,8 +43,10 @@ def login(email, password):
         # Perform POST request to Firebase API for user login
         response = requests.post(url, headers=headers, json=payload, timeout=10)
         response = response.json()
-        if response['token'] is not None:
+        if response['id_token'] is not None:
             st.session_state.username = email
+            st.session_state.id_token = response['id_token']
+            st.session_state.refresh_token = response['refresh_token']
             return True
         else:
             st.error(response['message'])
@@ -75,8 +77,10 @@ def register(email, password):
         # Perform POST request to Firebase API for user login
         response = requests.post(url, headers=headers, json=payload, timeout=10)
         response = response.json()
-        if response['token'] is not None:
+        if response['id_token'] is not None:
             st.session_state.username = email
+            st.session_state.id_token = response['id_token']
+            st.session_state.refresh_token = response['refresh_token']
             return True
         else:
             st.error(response['message'])
@@ -97,6 +101,8 @@ def encode_cookie():
     exp_date = (datetime.now() + timedelta(days=st.secrets["cookie"]["expiry_days"])).timestamp()
     cookie_dict = {
         'username': st.session_state.username,
+        'id_token': st.session_state.id_token,
+        'refresh_token': st.session_state.refresh_token,
         'exp_date': exp_date}
     token = jwt.encode(
         cookie_dict,
@@ -129,8 +135,7 @@ def get_cookie():
     token = cookie_manager.get(st.secrets["cookie"]["name"])
     if token is not None:
         cookie_dict = decode_cookie(token)
-        if (cookie_dict is not False and 'username' in cookie_dict and
-            cookie_dict['exp_date'] > datetime.now().timestamp()):
+        if cookie_dict and (cookie_dict['exp_date'] > datetime.now().timestamp()):
             return cookie_dict
     return None
 
@@ -201,7 +206,9 @@ def check_cookie():
     """
     Checks if the user has a valid authentication cookie and sets session state accordingly.
     """
-    token = get_cookie()
-    if token:
+    cookie = get_cookie()
+    if cookie:
         st.session_state.authenticated = True
-        st.session_state.username = token['username']
+        st.session_state.username = cookie['username']
+        st.session_state.id_token = cookie['id_token']
+        st.session_state.refresh_token = cookie['refresh_token']
