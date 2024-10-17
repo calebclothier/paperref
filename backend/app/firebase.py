@@ -1,7 +1,6 @@
-from typing import Annotated
 import json
 
-from fastapi import HTTPException, Header, Depends
+from fastapi import HTTPException, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 import firebase_admin
 from firebase_admin import credentials, auth
@@ -24,5 +23,5 @@ async def get_current_user(authorization: HTTPAuthorizationCredentials = Depends
         # Extract the uid (user_id)
         user_id = decoded_token['uid']
         return user_id
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
