@@ -1,6 +1,5 @@
 import requests
 import json
-import base64
 
 import pandas as pd
 import streamlit as st
@@ -44,7 +43,7 @@ def save_library_for_user():
     }
     try:
         # Perform POST request to Firebase API for user login
-        response = requests.post(url, headers=headers, json=payload, timeout=10)
+        requests.post(url, headers=headers, json=payload, timeout=10)
         # TODO: error handling
     except requests.exceptions.HTTPError as error:
         message = json.loads(error.args[1])['error']['message']
