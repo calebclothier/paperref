@@ -2,7 +2,7 @@ import streamlit as st
 st.set_page_config(page_title='Home', initial_sidebar_state='expanded')
 
 from src.api.auth import authenticate_user, logout_user, check_cookie
-from src.utils import load_css
+# from src.utils import load_css
 
 
 # # load custom styles

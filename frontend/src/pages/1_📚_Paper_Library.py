@@ -3,7 +3,7 @@ st.set_page_config(page_title="Paper Library", page_icon='📚', layout='wide')
 
 from src.api.auth import check_cookie
 from src.api.library import load_library_for_user, save_library_for_user
-from src.utils import load_css
+# from src.utils import load_css
 
 
 # # load custom styles

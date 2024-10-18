@@ -1,4 +1,3 @@
-from tabnanny import check
 import requests
 import json
 
@@ -47,8 +46,7 @@ def save_library_for_user():
     token = st.session_state.id_token
     headers = {
         "content-type": "application/json; charset=UTF-8",
-        "Authorization": f"Bearer {token}"
-    }
+        "Authorization": f"Bearer {token}"}
     try:
         # Perform POST request to Firebase API for user login
         requests.post(url, headers=headers, json=payload, timeout=10)
