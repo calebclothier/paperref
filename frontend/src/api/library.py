@@ -1,11 +1,17 @@
+from tabnanny import check
 import requests
 import json
 
 import pandas as pd
 import streamlit as st
 
+from src.api.auth import check_id_token
+
 
 def load_library_for_user():
+    # check and refresh id_token if necessary
+    check_id_token()
+    # backend GET request 
     url = f"{st.secrets['backend']['url']}/library/papers"
     token = st.session_state.id_token
     headers = {
@@ -30,11 +36,13 @@ def load_library_for_user():
 
 
 def save_library_for_user():
+    # check and refresh id_token if necessary
+    check_id_token()
     # process from dataframe to dict
     df = st.session_state.updated_df
     df_renamed = df.rename(columns={'DOI': 'doi', 'Title': 'title'})
     payload = df_renamed.to_dict(orient='records')
-    # post request
+    # backend POST request
     url = f"{st.secrets['backend']['url']}/library/papers"
     token = st.session_state.id_token
     headers = {

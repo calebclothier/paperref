@@ -5,8 +5,8 @@ from src.api.auth import authenticate_user, logout_user, check_cookie
 from src.utils import load_css
 
 
-# load custom styles
-load_css("styles/buttons.css")
+# # load custom styles
+# load_css("styles/buttons.css")
 
 
 # add logo to top left corner

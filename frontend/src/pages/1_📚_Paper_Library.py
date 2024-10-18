@@ -6,8 +6,8 @@ from src.api.library import load_library_for_user, save_library_for_user
 from src.utils import load_css
 
 
-# load custom styles
-load_css("styles/buttons.css")
+# # load custom styles
+# load_css("styles/buttons.css")
 
 
 # add logo to top left corner

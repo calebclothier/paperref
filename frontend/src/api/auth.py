@@ -43,10 +43,12 @@ def login(email, password):
         # Perform POST request to Firebase API for user login
         response = requests.post(url, headers=headers, json=payload, timeout=10)
         response = response.json()
-        if response['id_token'] is not None:
+        if response['success']:
             st.session_state.username = email
             st.session_state.id_token = response['id_token']
             st.session_state.refresh_token = response['refresh_token']
+            expires_in = int(response['expires_in'])
+            st.session_state.id_token_expiry = datetime.now() + timedelta(seconds=expires_in)
             return True
         else:
             st.error(response['message'])
@@ -89,6 +91,30 @@ def register(email, password):
         message = json.loads(error.args[1])['error']['message']
         st.error(f'{message}')
     return False
+
+
+def check_id_token():
+    expiry_time = st.session_state.get('id_token_expiry', None)
+    if expiry_time and datetime.now() > expiry_time:
+        refresh_id_token()
+
+
+def refresh_id_token():
+    token = st.session_state.refresh_token
+    url = f"{st.secrets['backend']['url']}/auth/refresh_token?refresh_token={token}"
+    headers = {"content-type": "application/json; charset=UTF-8"}
+    try:
+        # Perform POST request to Firebase API for user login
+        response = requests.post(url, headers=headers, timeout=10)
+        response = response.json()
+        if response['success']:
+            st.session_state.id_token = response['id_token']
+            st.session_state.refresh_token = response['refresh_token']
+        else:
+            st.error(response['error_message'])
+    except requests.exceptions.HTTPError as error:
+        message = json.loads(error.args[1])['error']['message']
+        st.error(f'{message}')
 
 
 def encode_cookie():

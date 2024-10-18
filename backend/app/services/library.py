@@ -4,7 +4,6 @@ from app.database.firestore import db
 from app.schemas.library import Paper
 
 
-
 def generate_firestore_id_from_doi(doi):
     return base64.urlsafe_b64encode(doi.encode('utf-8')).decode('utf-8').rstrip('=')
     

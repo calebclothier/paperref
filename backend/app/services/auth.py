@@ -21,8 +21,10 @@ def login_service(email: str, password: str):
         "email": email,
         "password": password,
         "returnSecureToken": True}
+    success = False
     id_token = None
     refresh_token = None
+    expires_in = None
     message = None
     try:
         # Perform POST request to Firebase API for user login
@@ -44,10 +46,19 @@ def login_service(email: str, password: str):
         response = response.json()
         id_token = response.get('idToken', None)
         refresh_token = response.get('refreshToken', None)
+        expires_in = response.get('expiresIn', None)
+        if id_token and refresh_token:
+            success = True
     except requests.exceptions.HTTPError as error:
         message = json.loads(error.args[1])['error']['message']
     # return auth response
-    return {'id_token': id_token, 'refresh_token': refresh_token, 'message': message}
+    result = {
+        'success': success, 
+        'id_token': id_token, 
+        'refresh_token': refresh_token, 
+        'expires_in': expires_in,
+        'error_message': message}
+    return result
 
 
 def register_service(email: str, password: str):
@@ -92,3 +103,37 @@ def register_service(email: str, password: str):
         message = json.loads(error.args[1])['error']['message']
     # return auth response
     return {'id_token': id_token, 'refresh_token': refresh_token, 'message': message}
+
+
+def refresh_id_token_service(refresh_token: str):
+    url = f"https://securetoken.googleapis.com/v1/token?key={settings.FIREBASE_API_KEY}"
+    headers = {"content-type": "application/json; charset=UTF-8"}
+    payload = {"grant_type": "refresh_token", "refresh_token": refresh_token}
+    success = False
+    id_token = None
+    refresh_token = None
+    expires_in = None
+    message = None
+    try:
+        # Perform POST request to Firebase API for user login
+        response = requests.post(url, headers=headers, json=payload, timeout=10)
+        # Handle non-200 response codes and display relevant error messages
+        if response.status_code != 200:
+            message = response.json().get('error', {}).get('message', "An unknown error occurred.")
+        else:
+            response = response.json()
+            id_token = response.get('id_token', None)
+            refresh_token = response.get('refresh_token', None)
+            expires_in = response.get('expires_in', None)
+            if id_token and refresh_token:
+                success = True
+    except requests.exceptions.HTTPError as error:
+        message = json.loads(error.args[1])['error']['message']
+    # return auth response
+    result = {
+        'success': success, 
+        'id_token': id_token, 
+        'refresh_token': refresh_token, 
+        'expires_in': expires_in,
+        'error_message': message}
+    return result

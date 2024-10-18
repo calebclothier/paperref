@@ -8,7 +8,8 @@ class AuthRequest(BaseModel):
 
 
 class AuthResponse(BaseModel):
+    success: bool
     id_token: Optional[str] = None
     refresh_token: Optional[str] = None
-    message: Optional[str] = None
-    
+    expires_in: Optional[str] = None
+    error_message: Optional[str] = None
