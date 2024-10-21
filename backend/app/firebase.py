@@ -16,7 +16,7 @@ firebase_app = firebase_admin.initialize_app(cred)
 auth_scheme = HTTPBearer()
 
 async def get_current_user(authorization: HTTPAuthorizationCredentials = Depends(auth_scheme)):
-    """Verify the idToken and extract the user_id (uid)."""
+    """Verify the auth id_token and extract the user_id (uid)."""
     try:
         # Verify the token with Firebase Admin SDK
         decoded_token = auth.verify_id_token(authorization.credentials)

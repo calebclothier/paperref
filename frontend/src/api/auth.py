@@ -23,9 +23,9 @@ import jwt
 cookie_manager = stx.CookieManager()
 
 
-def login(email, password):
+def login(email, password) -> bool:
     """
-    Performs user login through the PaperRef backend REST API.
+    Performs user login through the backend.
 
     Args:
         email (str): The user's email address.
@@ -42,8 +42,8 @@ def login(email, password):
     try:
         # Perform POST request to Firebase API for user login
         response = requests.post(url, headers=headers, json=payload, timeout=10)
-        response = response.json()
-        if response['success']:
+        if response.status_code == 200:
+            response = response.json()
             st.session_state.username = email
             st.session_state.id_token = response['id_token']
             st.session_state.refresh_token = response['refresh_token']
@@ -51,17 +51,18 @@ def login(email, password):
             st.session_state.id_token_expiry = datetime.now() + timedelta(seconds=expires_in)
             return True
         else:
-            st.error(response['message'])
+            error_message = response.json().get('detail', "An unknown error occurred.")
+            st.error(error_message)
             return False
-    except requests.exceptions.HTTPError as error:
+    except requests.exceptions.RequestException as error:
         message = json.loads(error.args[1])['error']['message']
         st.error(f'{message}')
-    return False
+        return False
 
 
-def register(email, password):
+def register(email, password) -> bool:
     """
-    Signs up a new user through the PaperRef backend REST API.
+    Signs up a new user through the backend.
 
     Args:
         email (str): The user's email address.
@@ -78,46 +79,54 @@ def register(email, password):
     try:
         # Perform POST request to Firebase API for user login
         response = requests.post(url, headers=headers, json=payload, timeout=10)
-        response = response.json()
-        if response['id_token'] is not None:
+        if response.status_code == 200:
+            response = response.json()
             st.session_state.username = email
             st.session_state.id_token = response['id_token']
             st.session_state.refresh_token = response['refresh_token']
+            expires_in = int(response['expires_in'])
+            st.session_state.id_token_expiry = datetime.now() + timedelta(seconds=expires_in)
             return True
         else:
-            st.error(response['message'])
+            error_message = response.json().get('detail', "An unknown error occurred.")
+            st.error(error_message)
             return False
-    except requests.exceptions.HTTPError as error:
+    except requests.exceptions.RequestException as error:
         message = json.loads(error.args[1])['error']['message']
         st.error(f'{message}')
-    return False
+        return False
 
 
-def check_id_token():
+def check_id_token() -> None:
+    """Checks and refreshes the user id_token if it has expired."""
     expiry_time = st.session_state.get('id_token_expiry', None)
     if expiry_time and datetime.now() > expiry_time:
         refresh_id_token()
 
 
-def refresh_id_token():
+def refresh_id_token() -> None:
+    """Refreshes the user id_token through the backend."""
     token = st.session_state.refresh_token
     url = f"{st.secrets['backend']['url']}/auth/refresh_token?refresh_token={token}"
     headers = {"content-type": "application/json; charset=UTF-8"}
     try:
         # Perform POST request to Firebase API for user login
         response = requests.post(url, headers=headers, timeout=10)
-        response = response.json()
-        if response['success']:
+        if response.status_code == 200:
+            response = response.json()
             st.session_state.id_token = response['id_token']
             st.session_state.refresh_token = response['refresh_token']
+            expires_in = int(response['expires_in'])
+            st.session_state.id_token_expiry = datetime.now() + timedelta(seconds=expires_in)
         else:
-            st.error(response['error_message'])
-    except requests.exceptions.HTTPError as error:
+            error_message = response.json().get('detail', "An unknown error occurred.")
+            st.error(error_message)
+    except requests.exceptions.RequestException as error:
         message = json.loads(error.args[1])['error']['message']
         st.error(f'{message}')
 
 
-def encode_cookie():
+def encode_cookie() -> str:
     """
     Encodes user authentication details into a JWT for storing in a cookie.
 
@@ -137,7 +146,7 @@ def encode_cookie():
     return token
 
 
-def decode_cookie(token):
+def decode_cookie(token: str) -> dict:
     """
     Decodes a JWT token to retrieve user authentication details.
 
@@ -151,7 +160,7 @@ def decode_cookie(token):
     return cookie_dict
 
 
-def get_cookie():
+def get_cookie() -> dict:
     """
     Retrieves the authentication cookie, if it exists and is valid.
 
@@ -166,7 +175,7 @@ def get_cookie():
     return None
 
 
-def set_cookie():
+def set_cookie() -> None:
     """
     Sets an authentication cookie with a valid token.
     """
@@ -175,7 +184,7 @@ def set_cookie():
     cookie_manager.set(st.secrets["cookie"]["name"], token, expires_at=exp_date)
 
 
-def delete_cookie():
+def delete_cookie() -> None:
     """
     Deletes the authentication cookie from the user's browser.
     """
@@ -218,7 +227,7 @@ def authenticate_user():
                 st.rerun()
 
 
-def logout_user():
+def logout_user() -> None:
     """
     Logs out the authenticated user by clearing session state and deleting cookies.
     """
@@ -228,7 +237,7 @@ def logout_user():
         st.rerun()
 
 
-def check_cookie():
+def check_cookie() -> None:
     """
     Checks if the user has a valid authentication cookie and sets session state accordingly.
     """
