@@ -1,4 +1,3 @@
-from typing import Optional
 from pydantic import BaseModel
 
 
@@ -8,6 +7,6 @@ class AuthRequest(BaseModel):
 
 
 class AuthResponse(BaseModel):
-    token: Optional[str] = None
-    message: Optional[str] = None
-    
+    id_token: str
+    refresh_token: str
+    expires_in: str
