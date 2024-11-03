@@ -133,12 +133,11 @@ def encode_cookie() -> str:
     Returns:
         str: Encoded JWT token.
     """
-    exp_date = (datetime.now() + timedelta(days=st.secrets["cookie"]["expiry_days"])).timestamp()
     cookie_dict = {
         'username': st.session_state.username,
         'id_token': st.session_state.id_token,
         'refresh_token': st.session_state.refresh_token,
-        'exp_date': exp_date}
+        'id_token_expiry': st.session_state.id_token_expiry.isoformat()}
     token = jwt.encode(
         cookie_dict,
         st.secrets["cookie"]["key"],
@@ -156,7 +155,7 @@ def decode_cookie(token: str) -> dict:
     Returns:
         dict: Decoded token contents as a dictionary.
     """
-    cookie_dict = jwt.decode(token, st.secrets["cookie"]["key"], algorithms=['HS256'])
+    cookie_dict = jwt.decode(token, key=st.secrets["cookie"]["key"], algorithms=['HS256'])
     return cookie_dict
 
 
@@ -169,9 +168,7 @@ def get_cookie() -> dict:
     """
     token = cookie_manager.get(st.secrets["cookie"]["name"])
     if token is not None:
-        cookie_dict = decode_cookie(token)
-        if cookie_dict and (cookie_dict['exp_date'] > datetime.now().timestamp()):
-            return cookie_dict
+        return decode_cookie(token)
     return None
 
 
@@ -181,7 +178,7 @@ def set_cookie() -> None:
     """
     token = encode_cookie()
     exp_date = datetime.now() + timedelta(days=st.secrets["cookie"]["expiry_days"])
-    cookie_manager.set(st.secrets["cookie"]["name"], token, expires_at=exp_date)
+    cookie_manager.set(cookie=st.secrets["cookie"]["name"], val=token, expires_at=exp_date)
 
 
 def delete_cookie() -> None:
@@ -247,3 +244,4 @@ def check_cookie() -> None:
         st.session_state.username = cookie['username']
         st.session_state.id_token = cookie['id_token']
         st.session_state.refresh_token = cookie['refresh_token']
+        st.session_state.id_token_expiry = datetime.fromisoformat(cookie['id_token_expiry'])
