@@ -18,7 +18,7 @@ st.logo(
 
 
 # header
-st.markdown("## Paper Library")
+st.markdown("### Paper Library")
 st.sidebar.header("Paper Library")
 
 
@@ -31,9 +31,9 @@ if not st.session_state.get('authenticated', False):
 
 
 # data table
-df = load_library_for_user()
-st.session_state.updated_df = st.data_editor(
-    df,
+papers_df = load_library_for_user()
+st.session_state.papers_df = st.data_editor(
+    papers_df,
     use_container_width=True,
     column_config={
         'Title': st.column_config.TextColumn(width=600),

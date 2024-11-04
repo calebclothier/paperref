@@ -56,9 +56,9 @@ def save_library_for_user() -> None:
     # check and refresh id_token if necessary
     check_id_token()
     # process from dataframe to dict
-    df = st.session_state.updated_df
-    df_renamed = df.rename(columns={'DOI': 'doi', 'Title': 'title'})
-    payload = df_renamed.to_dict(orient='records')
+    papers_df = st.session_state.papers_df
+    papers_df_renamed = papers_df.rename(columns={'DOI': 'doi', 'Title': 'title'})
+    payload = papers_df_renamed.to_dict(orient='records')
     # backend POST request
     url = f"{st.secrets['backend']['url']}/library/papers"
     token = st.session_state.id_token
@@ -66,7 +66,6 @@ def save_library_for_user() -> None:
         "content-type": "application/json; charset=UTF-8",
         "Authorization": f"Bearer {token}"}
     try:
-        # Perform POST request to Firebase API for user login
         requests.post(url, headers=headers, json=payload, timeout=10)
         # TODO: error handling
     except requests.exceptions.RequestException:

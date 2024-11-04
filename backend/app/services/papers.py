@@ -1,7 +1,7 @@
 import base64
 
 from app.database.firestore import db
-from app.schemas.library import Paper
+from app.schemas.papers import Paper
 
 
 def generate_firestore_id_from_doi(doi: str) -> str:

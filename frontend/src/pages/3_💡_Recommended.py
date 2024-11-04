@@ -14,7 +14,7 @@ st.logo(
 # PAGE CONTENT
 
 # header
-st.markdown("## Recommended")
+st.markdown("### Recommended")
 st.sidebar.header("Recommended")
 
 # check authentication

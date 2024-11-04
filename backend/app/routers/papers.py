@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 
 from app.firebase import get_current_user
-from app.services.library import get_paper_library_service, save_paper_library_service
-from app.schemas.library import Paper
+from app.services.papers import get_paper_library_service, save_paper_library_service
+from app.schemas.papers import Paper
 
 
 router = APIRouter()
