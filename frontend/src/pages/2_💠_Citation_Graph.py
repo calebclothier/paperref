@@ -68,6 +68,7 @@ with st.container(key='search_container'):
     # button to build graph
     if col2.button(label='Build graph', use_container_width=True):
         data = get_graph_for_paper(selected_paper)
+        print(data['citation_graph'])
         st.session_state.citation_graph = data['citation_graph']
         st.session_state.citation_graph_cytoscape = data['citation_graph_cytoscape']
         # st.session_state.reference_graph = data['reference_graph']
@@ -88,7 +89,7 @@ with st.container(key='graph_container'):
                 'style': {
                     'label': 'data(label)',
                     'color': '#fff',
-                    'text-outline-color': '#fff',
+                    'text-outline-color': '#000',
                     'text-outline-width': '0.5px',
                     'font-size': '4px',
                     'text-valign': 'center',

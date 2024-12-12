@@ -13,7 +13,7 @@ class PaperDetail(BaseModel):
     title: str
     authors: list[str]
     abstract: Optional[str] = None
-    year: int
+    year: Optional[int] = None
     reference_count: Optional[int] = None
     citation_count: Optional[int] = None
     journal: Optional[str] = None
