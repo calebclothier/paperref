@@ -1,9 +1,13 @@
-import pandas as pd
-
 import streamlit as st
 st.set_page_config(page_title="Paper Library", page_icon='📚', layout='wide')
 
 from src.api.auth import check_cookie
+from src.api.library import load_library_for_user, save_library_for_user
+# from src.utils import load_css
+
+
+# # load custom styles
+# load_css("styles/buttons.css")
 
 
 # add logo to top left corner
@@ -13,11 +17,10 @@ st.logo(
     icon_image="assets/logo/small.png")
 
 
-# PAGE CONTENT
-
 # header
 st.markdown("## Paper Library")
 st.sidebar.header("Paper Library")
+
 
 # check authentication
 check_cookie()
@@ -26,25 +29,10 @@ if not st.session_state.get('authenticated', False):
     st.error("You must be logged in to view this page.")
     st.stop()
 
-# mock data
-test_data = [
-    [
-        '10.1103/PhysRevX.12.021028',
-        'Universal gate operations on nuclear spin qubits in an optical tweezer array of 171Yb atoms', 
-    ],
-    [
-        '10.1038/s41467-022-32094-6', 
-        'Erasure conversion for fault-tolerant quantum computing in alkaline earth Rydberg atom arrays', 
-    ],
-    [
-        '10.1038/s41586-023-06438-1', 
-        'High-fidelity gates with mid-circuit erasure conversion in a metastable neutral atom qubit', 
-    ]
-]
-df = pd.DataFrame(test_data, columns=['DOI', 'Title'])
 
 # data table
-st.data_editor(
+df = load_library_for_user()
+st.session_state.updated_df = st.data_editor(
     df,
     use_container_width=True,
     column_config={
@@ -52,3 +40,7 @@ st.data_editor(
         'DOI': st.column_config.TextColumn(required=True, width=175)},
     hide_index=True,
     num_rows='dynamic')
+
+
+# save button
+b = st.button('Save', icon=":material/save:", on_click=save_library_for_user)

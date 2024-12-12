@@ -1,6 +1,5 @@
 from fastapi import FastAPI
-
-from app.routers import auth
+from app.routers import auth, library
 
 
 # Create the FastAPI app instance
@@ -12,6 +11,7 @@ app = FastAPI(
 
 # Include the authentication router
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
+app.include_router(library.router, prefix="/library", tags=["library"])
 
 # Optional: root endpoint for testing
 @app.get("/")

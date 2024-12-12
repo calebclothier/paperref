@@ -17,3 +17,11 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src"]
+
+[tool.ruff.lint]
+ignore = [
+  "PLR",    # Design related pylint codes
+  "PT004",  # Use underscore for non-returning fixture (use usefixture instead)
+  "ISC001", # Conflicts with formatter
+  "E402",   # Module level import not at top of file
+]
