@@ -16,9 +16,6 @@ st.logo(
     link="https://paperref.com",
     icon_image="assets/logo/small.png")
 
-# header
-# st.markdown("### Citation Graph")
-
 # check authentication
 check_cookie()
 # if not authenticated, stop page rendering
@@ -57,7 +54,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 with st.container(key='search_container'):
-    col1, col2 = st.columns([0.8, 0.2], vertical_alignment='bottom')
+    col1, col2, col3 = st.columns([0.6, 0.15, 0.25], vertical_alignment='bottom')
     # select the papers for the citation graph
     options = st.session_state.get('papers_df').rename(columns={'DOI': 'doi', 'Title': 'title'})
     options = options.to_dict(orient='records')
@@ -66,21 +63,23 @@ with st.container(key='search_container'):
         options=options,
         format_func=lambda row: row['title'])
     # button to build graph
-    if col2.button(label='Build graph', use_container_width=True):
+    if col2.button(label='Build', use_container_width=True):
         data = get_graph_for_paper(selected_paper)
-        print(data['citation_graph'])
         st.session_state.citation_graph = data['citation_graph']
         st.session_state.citation_graph_cytoscape = data['citation_graph_cytoscape']
-        # st.session_state.reference_graph = data['reference_graph']
-        # st.session_state.reference_graph_cytoscape = data['reference_graph_cytoscape']
+        st.session_state.reference_graph = data['reference_graph']
+        st.session_state.reference_graph_cytoscape = data['reference_graph_cytoscape']
+    # radio selector to display citation graph or reference graph
+    graph_type = col3.radio("Graph type:", ["Citations", "References"], horizontal=True)
+    graph_key = 'citation_graph' if graph_type == 'Citations' else 'reference_graph'
 
 # graph
 with st.container(key='graph_container'):
-    if st.session_state.get('citation_graph', None):
-        years = [node['data'].get('year', datetime.now().year) for node in st.session_state.citation_graph_cytoscape]
+    if st.session_state.get(graph_key, None):
+        years = [node['data'].get('year', datetime.now().year) for node in st.session_state.get(f'{graph_key}_cytoscape')]
         min_year = min(years)
         max_year = max(years)
-        citations = [node['data'].get('citation_count', 0) for node in st.session_state.citation_graph_cytoscape]
+        citations = [node['data'].get('citation_count', 0) for node in st.session_state.get(f'{graph_key}_cytoscape')]
         min_citations = min(citations)
         max_citations = max(citations)
         stylesheet = [
@@ -89,8 +88,8 @@ with st.container(key='graph_container'):
                 'style': {
                     'label': 'data(label)',
                     'color': '#fff',
-                    'text-outline-color': '#000',
-                    'text-outline-width': '0.5px',
+                    # 'text-outline-color': '#000',
+                    # 'text-outline-width': '0.5px',
                     'font-size': '4px',
                     'text-valign': 'center',
                     'text-halign': 'center',
@@ -99,21 +98,19 @@ with st.container(key='graph_container'):
                     'background-color': '#30c9bc',
                     'background-opacity': f'mapData(year, {min_year}, {max_year}, 0.1, 1)',
                     'border-color': '#fff',
-                    'border-width': '0.5px'
-                }
+                    'border-width': '0.5px'}
             },
             {
                 'selector': 'edge',
                 'style': {
                     'width': 0.25,
                     'line-color': '#ccc',
-                    'line-opacity': 0.5
-                }
+                    'line-opacity': 0.5}
             }
         ]
 
         st.session_state.graph_selection = cytoscape(
-            st.session_state.citation_graph_cytoscape, 
+            st.session_state.get(f'{graph_key}_cytoscape'), 
             stylesheet, 
             key="graph",
             height="600px", 
@@ -145,12 +142,16 @@ with st.sidebar:
         selected_nodes = st.session_state.graph_selection['nodes']
         if len(selected_nodes) > 0:
             node_id = selected_nodes[0]
-            node_detail = [node['detail'] for node in st.session_state.citation_graph['nodes'] if node['id'] == node_id][0]
+            node_detail = [node['detail'] for node in st.session_state.get(graph_key)['nodes'] if node['id'] == node_id][0]
             # display title
             title = clean_title(node_detail['title'])
             st.markdown(f"### {title}")
             # display authors
-            st.markdown(', '.join(node_detail['authors']))
+            if len(node_detail['authors']) > 10:
+                with st.expander(label=f"{node_detail['authors'][0]} _et al._"):
+                    st.markdown(', '.join(node_detail['authors']))
+            else:
+                st.markdown(', '.join(node_detail['authors']))
             # display journal and year
             if node_detail['journal']:
                 st.markdown(f"{node_detail['year']}, _{node_detail['journal']}_")
