@@ -1,3 +1,5 @@
+"""Routers for paper recommendation modules"""
+
 from fastapi import APIRouter, Depends
 
 from app.firebase import get_current_user

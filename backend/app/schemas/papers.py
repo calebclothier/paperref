@@ -4,7 +4,7 @@ from typing import Optional
 
 class Paper(BaseModel):
     id: str
-    title: str  # Required field
+    title: str
     doi: Optional[str] = None
     arxiv: Optional[str] = None
     authors: Optional[list[str]] = None

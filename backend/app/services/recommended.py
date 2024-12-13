@@ -55,9 +55,6 @@ def get_custom_recommendations(user_papers: list[Paper]):
     references = get_references_service(user_papers)
     citations = get_citations_service(user_papers)
     
-    print(len(references))
-    print(len(citations))
-    
     # Combine all recommendations
     seen = set()
     user_paper_ids = set(paper.id for paper in user_papers)

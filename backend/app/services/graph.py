@@ -1,3 +1,5 @@
+"""Graph services to fetch, load and parse paper data to build citation and reference graphs."""
+
 import requests
 import time
 from math import ceil
@@ -11,7 +13,18 @@ from app.utils.paper import parse_paper_detail
 
 
 class PaperBatchFetcher:
-    """Fetches paper details in batches from the Semantic Scholar API."""
+    """
+    Fetches paper details in batches from the Semantic Scholar API.
+
+    Attributes:
+        FIELDS (list[str]): Miscellaneous fields including the paper's
+                            abstract, title, number of citations, number
+                            of references.
+        TOP_LEVEL_FIELDS (list[str]): Miscellaneous important fields including
+                            the paper's list of papers that cite it, list of
+                            reference papers, and a list of AI generated summaries
+                            for each.
+    """
 
     BASE_URL = f"{settings.SEMANTIC_SCHOLAR_API_URL}/paper/batch"
     FIELDS = [
@@ -45,15 +58,40 @@ class PaperBatchFetcher:
 
     @staticmethod
     def _get_nested_fields(keys_to_nest: list[str]) -> list[str]:
-        """Generate nested fields for citations and references."""
+        """
+        Generate nested fields for citations and references.
+
+        Args:
+            keys_to_nest (list[str]): The keys to nest over for the class fields.
+
+        Returns:
+            list[str]: A list of strings for the nested keys and fields
+        """
         return [
             f"{relation}.{field}"
             for relation in keys_to_nest
             for field in PaperBatchFetcher.FIELDS
         ]
 
+<<<<<<< HEAD
     def fetch(self, paper_ids: list[str], key="both") -> dict:
         """Fetch details for a list of paper IDs (up to 50 at a time)."""
+=======
+    def fetch(self, paper_ids: list[int], key="both") -> dict:
+        """
+        Fetch details for a list of paper IDs (up to 50 at a time).
+
+        Args:
+            paper_ids (list[int]): List of paper ID's
+            key (str): Which data to fetch; must be either 'both', 'citations' or 'references'
+
+        Returns:
+            dict: The data for the list of papers, determined by the key
+
+        Raises:
+            HTTPException: Any error fetching paper data
+        """
+>>>>>>> d0be991 (add: added docstrings and static typying (#15))
         payload = {"ids": paper_ids}
         if key == "both":
             fields = self.all_fields
@@ -83,8 +121,26 @@ class PaperBatchFetcher:
                 status_code=500, detail=f"Error fetching paper data: {e}"
             )
 
+<<<<<<< HEAD
     def fetch_batched(self, paper_ids: list[str], batch_size=50, key="both") -> list[dict]:
         """Fetch details for a list of paper IDs in batches to avoid size limits."""
+=======
+    def fetch_batched(self, paper_ids: list[int], batch_size=50) -> list[dict]:
+        """
+        Fetch details for a list of paper IDs in batches to avoid size limits.
+        Uses key='both' for fetch function.
+
+        Args:
+            paper_ids (list[int]): List of paper ID's
+            batch_size (int): Batch size to fetch a list of papers
+
+        Returns:
+            list[dict]: The batched data for the list of papers.
+
+        Raises:
+            HTTPException: Any error fetching paper data
+        """
+>>>>>>> d0be991 (add: added docstrings and static typying (#15))
         results = []
         num_batches = ceil(len(paper_ids) / batch_size)
         for i in range(num_batches):
@@ -99,14 +155,33 @@ class PaperBatchFetcher:
 
 
 class BaseGraphBuilder:
-    """Base class for constructing directed graphs from paper data."""
+    """
+    Base class for constructing directed graphs from paper data.
+
+    Attributes:
+        nodes (dict): assigns a paper's "paperId" str to a app.schemas.graph.Node object
+        edges (list): assigns edges as app.schemas.graph.Edge objects
+    """
 
     def __init__(self):
         self.nodes = {}
         self.edges = []
 
     def add_node(self, paper_data: dict):
+<<<<<<< HEAD
         """Add a node to the graph if it doesn't already exist."""
+=======
+        """
+        Add a node to the graph if it doesn’t already exist.
+
+        Args:
+            paper_data (dict): Data dictionary for a given paper
+
+        Returns:
+            None
+
+        """
+>>>>>>> d0be991 (add: added docstrings and static typying (#15))
         paper_id = paper_data["paperId"]
         if paper_id not in self.nodes:
             self.nodes[paper_id] = Node(
@@ -118,11 +193,28 @@ class BaseGraphBuilder:
             self.nodes[paper_id].detail.tldr = paper_data["tldr"]["text"]
 
     def add_edge(self, source_id: str, target_id: str):
-        """Add an edge between two nodes"""
+        """
+        Add an edge between two nodes
+
+        Args:
+            source_id (str): Source paper's ID
+            target_id (str): Target paper's ID
+
+        Returns:
+            None
+        """
         self.edges.append(Edge(source=source_id, target=target_id))
 
     def build_graph_response(self) -> DirectedGraph:
-        """Build and return the graph."""
+        """
+        Build and return the graph.
+
+        Args:
+            None
+
+        Returns:
+            DirectedGraph
+        """
         return DirectedGraph(
             nodes=list(self.nodes.values()),
             edges=self.edges,
@@ -130,26 +222,43 @@ class BaseGraphBuilder:
         )
 
     def _max_citations(self) -> int:
-        """Calculate the maximum citation count among all nodes."""
+        """
+        Calculate the maximum citation count among all nodes.
+
+        Args:
+            None
+
+        Returns:
+            int
+        """
         return max(
             (node.detail.citation_count for node in self.nodes.values()), default=0
         )
 
 
 class CitationGraphBuilder(BaseGraphBuilder):
-    """Constructs a directed citation graph from paper data."""
+    """
+    Constructs a directed citation graph from paper data.
+    Inherits from BaseGraphBuilder.
+
+    Attributes:
+        (see BaseGraphBuilder)
+    """
 
     def add_paper_and_edges(
         self, source_paper: Paper, include_new_nodes=True, num_nodes=-1
     ):
-        """Add a paper and its citation edges.
+        """
+        Add a paper and its citation edges.
 
         Args:
             source_paper (Paper): input paper
             include_new_nodes (bool): Boolean to include new nodes in the graph from the citations
             num_nodes (int): if -1 then add all citations, otherwise add top num_nodes most cited papers
-        """
 
+        Returns:
+            None
+        """
         # First create an ordered list of citations based on their "citationCount"
         ordered_citations = [
             citation_paper
@@ -180,8 +289,14 @@ class CitationGraphBuilder(BaseGraphBuilder):
 
 
 class ReferenceGraphBuilder(BaseGraphBuilder):
-    """Constructs a directed reference graph from paper data."""
+    """
+    Constructs a directed reference graph from paper data.
 
+    Attributes:
+        (see BaseGraphBuilder)
+    """
+
+<<<<<<< HEAD
     def add_paper_and_edges(
         self, source_paper: Paper, include_new_nodes=True, num_nodes=-1
     ):
@@ -193,6 +308,20 @@ class ReferenceGraphBuilder(BaseGraphBuilder):
             num_nodes (int): if -1 then add all references, otherwise add top num_nodes most cited papers
         """
 
+=======
+    def add_paper_and_edges(self, source_paper, include_new_nodes=True, num_nodes=-1):
+        """
+        Add a paper and its reference edges.
+
+        Args:
+            source_paper (Paper): input paper
+            include_new_nodes (bool): Boolean to include new nodes in the graph from the citations
+            num_nodes (int): if -1 then add all citations, otherwise add top num_nodes most cited papers
+
+        Returns:
+            None
+        """
+>>>>>>> d0be991 (add: added docstrings and static typying (#15))
         # First create an ordered list of references based on their "citationCount"
         ordered_references = [
             reference_paper
@@ -231,7 +360,7 @@ def get_graph_service(paper: Paper, num_nodes=20) -> GraphResponse:
 
     Returns:
         GraphResponse: Returns both citation and reference graphs as DirectedGraph objects
-                        wrapped in GraphResponse
+                        wrapped in a GraphResponse object
     """
 
     fetcher = PaperBatchFetcher()
