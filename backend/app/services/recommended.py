@@ -2,7 +2,6 @@ import requests
 from fastapi import HTTPException
 
 from app.schemas.papers import Paper, PaperDetail
-from app.services.graph import parse_paper_detail
 
 
 def get_paper_recommendations_service(user_papers: list[Paper]):
