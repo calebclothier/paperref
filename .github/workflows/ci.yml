@@ -17,10 +17,10 @@ jobs:
     name: Test backend
     runs-on: ubuntu-latest
     env:
-      - FIREBASE_AUTH_URL: ${{ secrets.FIREBASE_AUTH_URL }}
-      - FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
-      - FIREBASE_ADMIN_SDK_KEY: ${{ secrets.FIREBASE_ADMIN_SDK_KEY }}
-      - SEMANTIC_SCHOLAR_API_URL: ${{ secrets.SEMANTIC_SCHOLAR_API_URL }}
+      FIREBASE_AUTH_URL: ${{ secrets.FIREBASE_AUTH_URL }}
+      FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+      FIREBASE_ADMIN_SDK_KEY: ${{ secrets.FIREBASE_ADMIN_SDK_KEY }}
+      SEMANTIC_SCHOLAR_API_URL: ${{ secrets.SEMANTIC_SCHOLAR_API_URL }}
     steps:
       - uses: actions/checkout@v3
       - uses: wntrblm/nox@2024.04.15
