@@ -1,5 +1,4 @@
-"""Authentication services for user login, registration, and token refreshing using Firebase REST API.
-"""
+"""Authentication services for user login, registration, and token refreshing using Firebase REST API."""
 
 import requests
 

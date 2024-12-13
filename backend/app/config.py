@@ -4,10 +4,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-<<<<<<< HEAD
-    """Settings for the project"""
-
-=======
     """
     Essential settings to interface with
     Firebase and Semantic Scholar API services.
@@ -19,7 +15,6 @@ class Settings(BaseSettings):
         SEMANTIC_SCHOLAR_API_URL (str): Semantic Scholar authentication URL
     """
     
->>>>>>> 9487df3 (add: added docstrings and static typying)
     FIREBASE_AUTH_URL: str
     FIREBASE_API_KEY: str
     FIREBASE_ADMIN_SDK_KEY: str

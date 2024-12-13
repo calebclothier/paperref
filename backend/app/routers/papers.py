@@ -1,5 +1,5 @@
-"""Routers for paper loading, saving and updating
-"""
+"""Routers for paper loading, saving and updating"""
+
 from fastapi import APIRouter, Depends
 
 from app.firebase import get_current_user
@@ -26,9 +26,11 @@ def get_paper_library(user_id: str = Depends(get_current_user)) -> list[Paper]:
 
 
 @router.post("/papers")
-def save_paper_library(paper_data: list[Paper], user_id: str = Depends(get_current_user)) -> None:
+def save_paper_library(
+    paper_data: list[Paper], user_id: str = Depends(get_current_user)
+) -> None:
     """
-    Saves or updates a list of papers for a given user in Firestore. 
+    Saves or updates a list of papers for a given user in Firestore.
     Existing papers not in the provided list are deleted.
     Note that a valid user_id is needed to call this function.
 

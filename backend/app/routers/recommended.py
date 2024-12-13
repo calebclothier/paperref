@@ -1,5 +1,5 @@
-"""Routers for paper recommendation modules
-"""
+"""Routers for paper recommendation modules"""
+
 from fastapi import APIRouter, Depends
 
 from app.firebase import get_current_user
@@ -22,7 +22,7 @@ def get_recommendations(user_id: str = Depends(get_current_user)) -> list[PaperD
 
     Returns:
         list[PaperDetail]: A list of PaperDetail objects retrieved from the user's paper library.
-    
+
     Raises:
         HTTPException: Any error that occurs during authentication.
     """

@@ -1,3 +1,5 @@
+"""Routers for graph modules
+"""
 from fastapi import APIRouter, Depends
 
 from app.firebase import get_current_user
@@ -9,11 +11,6 @@ from app.schemas.graph import GraphResponse
 router = APIRouter()
 
 
-<<<<<<< HEAD
-@router.post("", response_model=GraphResponse)
-def get_graph(paper: Paper, user_id: str = Depends(get_current_user)):
-    return get_graph_service(paper, user_id)
-=======
 @router.get("", response_model=GraphResponse)
 def get_graph(paper: Paper, user_id: str = Depends(get_current_user)) -> GraphResponse:
     """
@@ -28,4 +25,3 @@ def get_graph(paper: Paper, user_id: str = Depends(get_current_user)) -> GraphRe
         GraphResponse: The object containing the citation and reference graphs.
     """
     return get_graph_service(paper)
->>>>>>> 9487df3 (add: added docstrings and static typying)

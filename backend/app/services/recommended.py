@@ -1,5 +1,4 @@
-"""Recommended paper services for generating a user's recommended papers list based on a list of user input papers.
-"""
+"""Recommended paper services for generating a user's recommended papers list based on a list of user input papers."""
 
 import requests
 from fastapi import HTTPException
@@ -15,8 +14,8 @@ def get_paper_recommendations_service(user_papers: list[Paper]) -> list[PaperDet
         user_papers (list[Paper]): List of papers from the user
 
     Returns:
-        list[PaperDetail]: List of recommended papers (with detailed data) 
-        
+        list[PaperDetail]: List of recommended papers (with detailed data)
+
     Raises:
         HTTPException: Raises any exception during recommendation fetching
     """
@@ -45,7 +44,7 @@ def get_paper_recommendations_service(user_papers: list[Paper]) -> list[PaperDet
 def parse_paper_detail(paper: dict):
     """
     Utility function to parse paper details using the global fields.
-    
+
     Args:
         paper (dict): Paper data dictionary
 

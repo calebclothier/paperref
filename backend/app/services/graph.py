@@ -1,5 +1,4 @@
-"""Graph services to fetch, load and parse paper data to build citation and reference graphs.
-"""
+"""Graph services to fetch, load and parse paper data to build citation and reference graphs."""
 
 import requests
 import time
@@ -15,17 +14,17 @@ from app.schemas.graph import Node, Edge, DirectedGraph, GraphResponse
 class PaperBatchFetcher:
     """
     Fetches paper details in batches from the Semantic Scholar API.
-    
+
     Attributes:
-        FIELDS (list[str]): Miscellaneous fields including the paper's 
+        FIELDS (list[str]): Miscellaneous fields including the paper's
                             abstract, title, number of citations, number
                             of references.
-        TOP_LEVEL_FIELDS (list[str]): Miscellaneous important fields including 
-                            the paper's list of papers that cite it, list of 
+        TOP_LEVEL_FIELDS (list[str]): Miscellaneous important fields including
+                            the paper's list of papers that cite it, list of
                             reference papers, and a list of AI generated summaries
                             for each.
     """
-    
+
     BASE_URL = f"{settings.SEMANTIC_SCHOLAR_API_URL}/paper/batch"
     FIELDS = [
         "externalIds",
@@ -60,23 +59,27 @@ class PaperBatchFetcher:
     def _get_nested_fields(keys_to_nest: list[str]) -> list[str]:
         """
         Generate nested fields for citations and references.
-        
+
         Args:
             keys_to_nest (list[str]): The keys to nest over for the class fields.
 
         Returns:
             list[str]: A list of strings for the nested keys and fields
         """
-        return [f"{relation}.{field}" for relation in keys_to_nest for field in PaperBatchFetcher.FIELDS]
+        return [
+            f"{relation}.{field}"
+            for relation in keys_to_nest
+            for field in PaperBatchFetcher.FIELDS
+        ]
 
-    def fetch(self, paper_ids: list[int], key='both') -> dict:
+    def fetch(self, paper_ids: list[int], key="both") -> dict:
         """
         Fetch details for a list of paper IDs (up to 50 at a time).
-        
+
         Args:
-            paper_ids (list[int]): List of paper ID's 
+            paper_ids (list[int]): List of paper ID's
             key (str): Which data to fetch; must be either 'both', 'citations' or 'references'
-            
+
         Returns:
             dict: The data for the list of papers, determined by the key
 
@@ -114,11 +117,11 @@ class PaperBatchFetcher:
         """
         Fetch details for a list of paper IDs in batches to avoid size limits.
         Uses key='both' for fetch function.
-        
+
         Args:
-            paper_ids (list[int]): List of paper ID's 
+            paper_ids (list[int]): List of paper ID's
             batch_size (int): Batch size to fetch a list of papers
-            
+
         Returns:
             list[dict]: The batched data for the list of papers.
 
@@ -141,7 +144,7 @@ class PaperBatchFetcher:
 class BaseGraphBuilder:
     """
     Base class for constructing directed graphs from paper data.
-    
+
     Attributes:
         nodes (dict): assigns a paper's "paperId" str to a app.schemas.graph.Node object
         edges (list): assigns edges as app.schemas.graph.Edge objects
@@ -154,13 +157,13 @@ class BaseGraphBuilder:
     def add_node(self, paper_data: dict):
         """
         Add a node to the graph if it doesn’t already exist.
-        
+
         Args:
             paper_data (dict): Data dictionary for a given paper
-            
+
         Returns:
             None
-        
+
         """
         paper_id = paper_data["paperId"]
         if paper_id not in self.nodes:
@@ -175,7 +178,7 @@ class BaseGraphBuilder:
     def add_edge(self, source_id: str, target_id: str):
         """
         Add an edge between two nodes
-        
+
         Args:
             source_id (str): Source paper's ID
             target_id (str): Target paper's ID
@@ -188,7 +191,7 @@ class BaseGraphBuilder:
     def build_graph_response(self) -> DirectedGraph:
         """
         Build and return the graph.
-        
+
         Args:
             None
 
@@ -204,34 +207,38 @@ class BaseGraphBuilder:
     def _max_citations(self) -> int:
         """
         Calculate the maximum citation count among all nodes.
-        
+
         Args:
             None
 
         Returns:
             int
         """
-        return max((node.detail.citation_count for node in self.nodes.values()), default=0)
+        return max(
+            (node.detail.citation_count for node in self.nodes.values()), default=0
+        )
 
 
 class CitationGraphBuilder(BaseGraphBuilder):
     """
     Constructs a directed citation graph from paper data.
     Inherits from BaseGraphBuilder.
-    
+
     Attributes:
         (see BaseGraphBuilder)
     """
 
-    def add_paper_and_edges(self, source_paper: Paper, include_new_nodes=True, num_nodes=-1):
+    def add_paper_and_edges(
+        self, source_paper: Paper, include_new_nodes=True, num_nodes=-1
+    ):
         """
         Add a paper and its citation edges.
-        
+
         Args:
             source_paper (Paper): input paper
             include_new_nodes (bool): Boolean to include new nodes in the graph from the citations
             num_nodes (int): if -1 then add all citations, otherwise add top num_nodes most cited papers
-            
+
         Returns:
             None
         """
@@ -267,7 +274,7 @@ class CitationGraphBuilder(BaseGraphBuilder):
 class ReferenceGraphBuilder(BaseGraphBuilder):
     """
     Constructs a directed reference graph from paper data.
-    
+
     Attributes:
         (see BaseGraphBuilder)
     """
@@ -275,12 +282,12 @@ class ReferenceGraphBuilder(BaseGraphBuilder):
     def add_paper_and_edges(self, source_paper, include_new_nodes=True, num_nodes=-1):
         """
         Add a paper and its reference edges.
-        
+
         Args:
             source_paper (Paper): input paper
             include_new_nodes (bool): Boolean to include new nodes in the graph from the citations
             num_nodes (int): if -1 then add all citations, otherwise add top num_nodes most cited papers
-            
+
         Returns:
             None
         """
@@ -314,9 +321,9 @@ class ReferenceGraphBuilder(BaseGraphBuilder):
 
 
 def get_graph_service(paper: Paper, num_nodes=20) -> GraphResponse:
-    """ 
+    """
     Fetch papers and build citation and reference graphs for the given user.
-    
+
     Args:
         paper (Paper): Input paper
         num_nodes (int): Number of papers (ordered by their number of citations) to keep
@@ -381,8 +388,10 @@ def get_graph_service(paper: Paper, num_nodes=20) -> GraphResponse:
         for paper in second_level_reference_papers:
             paper_id = paper["paperId"]
             if paper_id in reference_builder.nodes:
-                reference_builder.add_paper_and_edges(paper, include_new_nodes=False, num_nodes=num_nodes)
-            
+                reference_builder.add_paper_and_edges(
+                    paper, include_new_nodes=False, num_nodes=num_nodes
+                )
+
     return GraphResponse(
         citation_graph=citation_builder.build_graph_response(),
         reference_graph=reference_builder.build_graph_response(),
@@ -392,16 +401,16 @@ def get_graph_service(paper: Paper, num_nodes=20) -> GraphResponse:
 def parse_paper_detail(paper: dict) -> dict:
     """
     Utility function to parse paper details using the global fields.
-    
+
     Args:
         paper (dict): paper data dictionary
-        
+
     Returns:
         dict: parsed data dictionary for the paper
     """
-    external_ids = paper['externalIds']
-    open_access = paper['openAccessPdf']
-    publication_venue = paper['publicationVenue']
+    external_ids = paper["externalIds"]
+    open_access = paper["openAccessPdf"]
+    publication_venue = paper["publicationVenue"]
     doi = None
     arxiv = None
     journal = None

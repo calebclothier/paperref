@@ -22,9 +22,6 @@ app.include_router(recommended.router, prefix="/recommended", tags=["recommended
 # Root endpoint for testing
 @app.get("/")
 def read_root():
-<<<<<<< HEAD
-    return {"message": "API is up and running!"}
-=======
     """
     Dummy route for testing purposes
 
@@ -32,4 +29,3 @@ def read_root():
         dict: "API is up and running!"
     """
     return {"message": "API is up and running!"}
->>>>>>> 9487df3 (add: added docstrings and static typying)

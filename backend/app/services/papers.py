@@ -1,5 +1,4 @@
-"""Paper services for managing a user's paper library in Firestore.
-"""
+"""Paper services for managing a user's paper library in Firestore."""
 
 import base64
 
