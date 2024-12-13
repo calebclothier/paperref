@@ -1,14 +1,10 @@
 import streamlit as st
 
+# NOTE: config must be before module-level imports
 st.set_page_config(page_title="Paper Library", page_icon="📚", layout="wide")
 
 from src.api.auth import check_cookie
 from src.api.library import load_library_for_user, save_library_for_user
-# from src.utils import load_css
-
-
-# # load custom styles
-# load_css("styles/buttons.css")
 
 
 # add logo to top left corner
@@ -32,7 +28,7 @@ if not st.session_state.get("authenticated", False):
     st.stop()
 
 
-# data table
+# data table for displaying editable paper library
 papers_df = load_library_for_user()
 st.session_state.papers_df = st.data_editor(
     papers_df,
@@ -46,5 +42,5 @@ st.session_state.papers_df = st.data_editor(
 )
 
 
-# save button
+# library save button
 b = st.button("Save", icon=":material/save:", on_click=save_library_for_user)

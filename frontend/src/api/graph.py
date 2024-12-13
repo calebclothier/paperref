@@ -1,3 +1,5 @@
+"""Interface to backend REST API for fetching citation/reference graphs."""
+
 import requests
 
 import streamlit as st
@@ -5,7 +7,20 @@ import streamlit as st
 from src.api.auth import check_id_token
 
 
-def get_graph_for_paper(selected_paper: dict):
+def get_graph_for_paper(selected_paper: dict) -> dict | None:
+    """
+    Retrieves the citation and reference graphs for the selected paper.
+
+    Fetches the raw graph data from the PaperRef backend (derived from SemanticScholar),
+    then parses the graphs into the format expected by the cytoscape graph rendering library.
+
+    Args:
+        selected_paper (dict): The DOI and title of the paper used to build the graph
+
+    Returns:
+        dict | None: The raw citation/reference graph data, and the parsed cytoscape-compatible versions,
+            or None if the backend request fails.
+    """
     # check and refresh id_token if necessary
     check_id_token()
     # backend POST request
@@ -38,7 +53,17 @@ def get_graph_for_paper(selected_paper: dict):
     return None
 
 
-def parse_graph_to_cytoscape_elements(graph: dict):
+def parse_graph_to_cytoscape_elements(graph: dict) -> list[dict]:
+    """
+    Helper function for parsing the graph data from the backend into the format
+    expected by cytoscape.
+
+    Args:
+        graph (dict): The graph returned by the PaperRef backend, list of nodes/edges
+
+    Returns:
+        list[dict]: A list of cytoscape elements (nodes and edges) to render
+    """
     elements = []
     # Process nodes from the citation graph
     for node in graph["nodes"]:

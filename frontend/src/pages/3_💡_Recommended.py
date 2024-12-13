@@ -1,5 +1,6 @@
 import streamlit as st
 
+# NOTE: config must be before module-level imports
 st.set_page_config(page_title="Recommended", page_icon="💡", layout="wide")
 
 from src.api.auth import check_cookie
@@ -12,9 +13,6 @@ st.logo(
     link="https://paperref.com",
     icon_image="assets/logo/small.png",
 )
-
-
-# PAGE CONTENT
 
 # header
 st.markdown("### Recommended")
