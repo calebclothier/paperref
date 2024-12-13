@@ -1,3 +1,6 @@
+"""Authentication services for user login, registration, and token refreshing using Firebase REST API.
+"""
+
 import requests
 
 from fastapi import HTTPException
@@ -5,7 +8,7 @@ from fastapi import HTTPException
 from app.config import settings
 
 
-def login_service(email: str, password: str):
+def login_service(email: str, password: str) -> dict:
     """
     Performs user login through the Firebase REST API.
 
@@ -60,7 +63,7 @@ def login_service(email: str, password: str):
         )
 
 
-def register_service(email: str, password: str):
+def register_service(email: str, password: str) -> dict:
     """
     Signs up a new user through the Firebase REST API.
 
@@ -114,7 +117,7 @@ def register_service(email: str, password: str):
         )
 
 
-def refresh_id_token_service(refresh_token: str):
+def refresh_id_token_service(refresh_token: str) -> dict:
     """
     Generates a new id_token using a refresh_token through the Firebase REST API.
 
