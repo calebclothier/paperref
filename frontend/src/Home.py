@@ -1,13 +1,9 @@
 import streamlit as st
 
+# NOTE: config must be before module-level imports
 st.set_page_config(page_title="Home", initial_sidebar_state="expanded")
 
 from src.api.auth import authenticate_user, logout_user, check_cookie
-# from src.utils import load_css
-
-
-# # load custom styles
-# load_css("styles/buttons.css")
 
 
 # add logo to top left corner

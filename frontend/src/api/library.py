@@ -1,3 +1,5 @@
+"""Interface to backend REST API for loading and saving user paper library."""
+
 import requests
 
 import pandas as pd
@@ -75,7 +77,7 @@ def save_library_for_user() -> None:
     return None
 
 
-def get_recommendations_for_user() -> list[dict]:
+def get_recommendations_for_user() -> list[dict] | None:
     # check and refresh id_token if necessary
     check_id_token()
     # backend GET request

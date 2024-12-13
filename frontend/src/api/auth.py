@@ -1,13 +1,4 @@
-"""
-This module handles user authentication in a Streamlit application using Firebase for
-login, registration, and session management.
-
-The key functionalities provided by this module include:
-- User login and registration via Firebase REST API.
-- Secure handling of user credentials with session tokens.
-- Management of authentication cookies using JWT for persistent login sessions.
-- Streamlit user interface for login and registration.
-"""
+"""Interface to backend REST API for performing user authentication."""
 
 from datetime import datetime, timedelta
 import json
@@ -22,7 +13,7 @@ import jwt
 cookie_manager = stx.CookieManager()
 
 
-def login(email, password) -> bool:
+def login(email: str, password: str) -> bool:
     """
     Performs user login through the backend.
 
@@ -59,7 +50,7 @@ def login(email, password) -> bool:
         return False
 
 
-def register(email, password) -> bool:
+def register(email: str, password: str) -> bool:
     """
     Signs up a new user through the backend.
 
@@ -97,14 +88,18 @@ def register(email, password) -> bool:
 
 
 def check_id_token() -> None:
-    """Checks and refreshes the user id_token if it has expired."""
+    """
+    Checks and refreshes the user id_token if it has expired.
+    """
     expiry_time = st.session_state.get("id_token_expiry", None)
     if expiry_time and datetime.now() > expiry_time:
         refresh_id_token()
 
 
 def refresh_id_token() -> None:
-    """Refreshes the user id_token through the backend."""
+    """
+    Refreshes the user id_token through the backend.
+    """
     token = st.session_state.refresh_token
     url = f"{st.secrets['backend']['url']}/auth/refresh_token?refresh_token={token}"
     headers = {"content-type": "application/json; charset=UTF-8"}
@@ -160,7 +155,7 @@ def decode_cookie(token: str) -> dict:
     return cookie_dict
 
 
-def get_cookie() -> dict:
+def get_cookie() -> dict | None:
     """
     Retrieves the authentication cookie, if it exists and is valid.
 
@@ -191,7 +186,7 @@ def delete_cookie() -> None:
     cookie_manager.delete(st.secrets["cookie"]["name"])
 
 
-def authenticate_user():
+def authenticate_user() -> None:
     """
     Creates a user interface for login and registration, handling authentication.
 
