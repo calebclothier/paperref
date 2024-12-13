@@ -1,3 +1,5 @@
+"""Routers for graph modules"""
+
 from fastapi import APIRouter, Depends
 
 from app.firebase import get_current_user
@@ -10,5 +12,16 @@ router = APIRouter()
 
 
 @router.post("", response_model=GraphResponse)
-def get_graph(paper: Paper, user_id: str = Depends(get_current_user)):
-    return get_graph_service(paper, user_id)
+def get_graph(paper: Paper, user_id: str = Depends(get_current_user)) -> GraphResponse:
+    """
+    Fetch a paper and build a citation and reference graphs for a given user.
+    Note that a valid user_id is needed to call this function.
+
+    Args:
+        paper (Paper): The paper from which to generate the graphs.
+        user_id (str): The ID of the user
+
+    Returns:
+        GraphResponse: The object containing the citation and reference graphs.
+    """
+    return get_graph_service(paper)

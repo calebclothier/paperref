@@ -1,3 +1,5 @@
+"""Paper services for managing a user's paper library in Firestore."""
+
 import base64
 
 from app.database.firestore import db
