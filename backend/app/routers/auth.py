@@ -1,9 +1,6 @@
 from fastapi import APIRouter
 from app.schemas.auth import AuthRequest, AuthResponse
-from app.services.auth import (
-    login_service, 
-    register_service, 
-    refresh_id_token_service)
+from app.services.auth import login_service, register_service, refresh_id_token_service
 
 
 router = APIRouter()

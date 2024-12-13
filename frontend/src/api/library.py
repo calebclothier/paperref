@@ -19,24 +19,25 @@ def load_library_for_user() -> pd.DataFrame:
     """
     # check and refresh id_token if necessary
     check_id_token()
-    # backend GET request 
+    # backend GET request
     url = f"{st.secrets['backend']['url']}/library/papers"
     token = st.session_state.id_token
     headers = {
         "content-type": "application/json; charset=UTF-8",
-        "Authorization": f"Bearer {token}"}
+        "Authorization": f"Bearer {token}",
+    }
     try:
         response = requests.get(url, headers=headers, timeout=10)
         if response.status_code == 200:
             response = response.json()
             if not response:
-                return pd.DataFrame(columns=['DOI', 'Title'])
+                return pd.DataFrame(columns=["DOI", "Title"])
             else:
                 df = pd.DataFrame(response)
-                df.columns = ['DOI', 'Title']
+                df.columns = ["DOI", "Title"]
                 return df
         else:
-            st.error(response.json().get('detail', "Unable to load paper library."))
+            st.error(response.json().get("detail", "Unable to load paper library."))
     except requests.exceptions.RequestException:
         st.error("Unable to load paper library.")
     return None
@@ -57,42 +58,53 @@ def save_library_for_user() -> None:
     check_id_token()
     # process from dataframe to dict
     papers_df = st.session_state.papers_df
-    papers_df_renamed = papers_df.rename(columns={'DOI': 'doi', 'Title': 'title'})
-    payload = papers_df_renamed.to_dict(orient='records')
+    papers_df_renamed = papers_df.rename(columns={"DOI": "doi", "Title": "title"})
+    payload = papers_df_renamed.to_dict(orient="records")
     # backend POST request
     url = f"{st.secrets['backend']['url']}/library/papers"
     token = st.session_state.id_token
     headers = {
         "content-type": "application/json; charset=UTF-8",
-        "Authorization": f"Bearer {token}"}
+        "Authorization": f"Bearer {token}",
+    }
     try:
         requests.post(url, headers=headers, json=payload, timeout=10)
         # TODO: error handling
     except requests.exceptions.RequestException:
         st.error("Unable to save paper library.")
     return None
-    
-    
+
+
 def get_recommendations_for_user() -> list[dict]:
-     # check and refresh id_token if necessary
+    # check and refresh id_token if necessary
     check_id_token()
-    # backend GET request 
+    # backend GET request
     url = f"{st.secrets['backend']['url']}/recommended"
     token = st.session_state.id_token
     headers = {
         "content-type": "application/json; charset=UTF-8",
-        "Authorization": f"Bearer {token}"}
+        "Authorization": f"Bearer {token}",
+    }
     try:
         response = requests.get(url, headers=headers, timeout=10)
         if response.status_code == 200:
             response = response.json()
-            df = pd.DataFrame(response, columns=['title', 'authors', 'publication_date', 'citation_count', 'open_access_url'])
-            df['authors'] = df['authors'].apply(lambda x: ', '.join(x))
-            df['publication_date'] = pd.to_datetime(df['publication_date'])
-            df.columns = ['Title', 'Authors', 'Date', 'Citations', 'URL']
+            df = pd.DataFrame(
+                response,
+                columns=[
+                    "title",
+                    "authors",
+                    "publication_date",
+                    "citation_count",
+                    "open_access_url",
+                ],
+            )
+            df["authors"] = df["authors"].apply(lambda x: ", ".join(x))
+            df["publication_date"] = pd.to_datetime(df["publication_date"])
+            df.columns = ["Title", "Authors", "Date", "Citations", "URL"]
             return df
         else:
-            st.error(response.json().get('detail', "Unable to fetch recommendations."))
+            st.error(response.json().get("detail", "Unable to fetch recommendations."))
     except requests.exceptions.RequestException:
         st.error("Unable to fetch recommendations.")
     return None

@@ -1,0 +1,19 @@
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: wntrblm/nox@2024.04.15
+      - name: Lint frontend and backend
+        run: nox -s lint
+  test_backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: wntrblm/nox@2024.04.15
+      - name: Test backend
+        run: nox -s test

@@ -14,4 +14,3 @@ def get_recommendations(user_id: str = Depends(get_current_user)):
     user_papers = get_paper_library_service(user_id)
     recommended_papers = get_paper_recommendations_service(user_papers)
     return recommended_papers
-    

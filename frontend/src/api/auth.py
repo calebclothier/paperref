@@ -1,5 +1,5 @@
 """
-This module handles user authentication in a Streamlit application using Firebase for 
+This module handles user authentication in a Streamlit application using Firebase for
 login, registration, and session management.
 
 The key functionalities provided by this module include:
@@ -8,7 +8,6 @@ The key functionalities provided by this module include:
 - Management of authentication cookies using JWT for persistent login sessions.
 - Streamlit user interface for login and registration.
 """
-
 
 from datetime import datetime, timedelta
 import json
@@ -36,27 +35,27 @@ def login(email, password) -> bool:
     """
     url = f"{st.secrets['backend']['url']}/auth/login"
     headers = {"content-type": "application/json; charset=UTF-8"}
-    payload = {
-        "email": email,
-        "password": password}
+    payload = {"email": email, "password": password}
     try:
         # Perform POST request to Firebase API for user login
         response = requests.post(url, headers=headers, json=payload, timeout=10)
         if response.status_code == 200:
             response = response.json()
             st.session_state.username = email
-            st.session_state.id_token = response['id_token']
-            st.session_state.refresh_token = response['refresh_token']
-            expires_in = int(response['expires_in'])
-            st.session_state.id_token_expiry = datetime.now() + timedelta(seconds=expires_in)
+            st.session_state.id_token = response["id_token"]
+            st.session_state.refresh_token = response["refresh_token"]
+            expires_in = int(response["expires_in"])
+            st.session_state.id_token_expiry = datetime.now() + timedelta(
+                seconds=expires_in
+            )
             return True
         else:
-            error_message = response.json().get('detail', "An unknown error occurred.")
+            error_message = response.json().get("detail", "An unknown error occurred.")
             st.error(error_message)
             return False
     except requests.exceptions.RequestException as error:
-        message = json.loads(error.args[1])['error']['message']
-        st.error(f'{message}')
+        message = json.loads(error.args[1])["error"]["message"]
+        st.error(f"{message}")
         return False
 
 
@@ -73,33 +72,33 @@ def register(email, password) -> bool:
     """
     url = f"{st.secrets['backend']['url']}/auth/register"
     headers = {"content-type": "application/json; charset=UTF-8"}
-    payload = {
-        "email": email,
-        "password": password}
+    payload = {"email": email, "password": password}
     try:
         # Perform POST request to Firebase API for user login
         response = requests.post(url, headers=headers, json=payload, timeout=10)
         if response.status_code == 200:
             response = response.json()
             st.session_state.username = email
-            st.session_state.id_token = response['id_token']
-            st.session_state.refresh_token = response['refresh_token']
-            expires_in = int(response['expires_in'])
-            st.session_state.id_token_expiry = datetime.now() + timedelta(seconds=expires_in)
+            st.session_state.id_token = response["id_token"]
+            st.session_state.refresh_token = response["refresh_token"]
+            expires_in = int(response["expires_in"])
+            st.session_state.id_token_expiry = datetime.now() + timedelta(
+                seconds=expires_in
+            )
             return True
         else:
-            error_message = response.json().get('detail', "An unknown error occurred.")
+            error_message = response.json().get("detail", "An unknown error occurred.")
             st.error(error_message)
             return False
     except requests.exceptions.RequestException as error:
-        message = json.loads(error.args[1])['error']['message']
-        st.error(f'{message}')
+        message = json.loads(error.args[1])["error"]["message"]
+        st.error(f"{message}")
         return False
 
 
 def check_id_token() -> None:
     """Checks and refreshes the user id_token if it has expired."""
-    expiry_time = st.session_state.get('id_token_expiry', None)
+    expiry_time = st.session_state.get("id_token_expiry", None)
     if expiry_time and datetime.now() > expiry_time:
         refresh_id_token()
 
@@ -114,16 +113,18 @@ def refresh_id_token() -> None:
         response = requests.post(url, headers=headers, timeout=10)
         if response.status_code == 200:
             response = response.json()
-            st.session_state.id_token = response['id_token']
-            st.session_state.refresh_token = response['refresh_token']
-            expires_in = int(response['expires_in'])
-            st.session_state.id_token_expiry = datetime.now() + timedelta(seconds=expires_in)
+            st.session_state.id_token = response["id_token"]
+            st.session_state.refresh_token = response["refresh_token"]
+            expires_in = int(response["expires_in"])
+            st.session_state.id_token_expiry = datetime.now() + timedelta(
+                seconds=expires_in
+            )
         else:
-            error_message = response.json().get('detail', "An unknown error occurred.")
+            error_message = response.json().get("detail", "An unknown error occurred.")
             st.error(error_message)
     except requests.exceptions.RequestException as error:
-        message = json.loads(error.args[1])['error']['message']
-        st.error(f'{message}')
+        message = json.loads(error.args[1])["error"]["message"]
+        st.error(f"{message}")
 
 
 def encode_cookie() -> str:
@@ -134,14 +135,12 @@ def encode_cookie() -> str:
         str: Encoded JWT token.
     """
     cookie_dict = {
-        'username': st.session_state.username,
-        'id_token': st.session_state.id_token,
-        'refresh_token': st.session_state.refresh_token,
-        'id_token_expiry': st.session_state.id_token_expiry.isoformat()}
-    token = jwt.encode(
-        cookie_dict,
-        st.secrets["cookie"]["key"],
-        algorithm='HS256')
+        "username": st.session_state.username,
+        "id_token": st.session_state.id_token,
+        "refresh_token": st.session_state.refresh_token,
+        "id_token_expiry": st.session_state.id_token_expiry.isoformat(),
+    }
+    token = jwt.encode(cookie_dict, st.secrets["cookie"]["key"], algorithm="HS256")
     return token
 
 
@@ -155,7 +154,9 @@ def decode_cookie(token: str) -> dict:
     Returns:
         dict: Decoded token contents as a dictionary.
     """
-    cookie_dict = jwt.decode(token, key=st.secrets["cookie"]["key"], algorithms=['HS256'])
+    cookie_dict = jwt.decode(
+        token, key=st.secrets["cookie"]["key"], algorithms=["HS256"]
+    )
     return cookie_dict
 
 
@@ -178,7 +179,9 @@ def set_cookie() -> None:
     """
     token = encode_cookie()
     exp_date = datetime.now() + timedelta(days=st.secrets["cookie"]["expiry_days"])
-    cookie_manager.set(cookie=st.secrets["cookie"]["name"], val=token, expires_at=exp_date)
+    cookie_manager.set(
+        cookie=st.secrets["cookie"]["name"], val=token, expires_at=exp_date
+    )
 
 
 def delete_cookie() -> None:
@@ -198,11 +201,11 @@ def authenticate_user():
     with login_tab:
         st.header("Login")
         # Login form
-        login_form = st.form(key='login')
-        email = login_form.text_input('Email')
-        password = login_form.text_input('Password', type='password')
+        login_form = st.form(key="login")
+        email = login_form.text_input("Email")
+        password = login_form.text_input("Password", type="password")
         # On form submit, process login details
-        if login_form.form_submit_button('Login'):
+        if login_form.form_submit_button("Login"):
             if login(email, password):
                 set_cookie()
                 st.session_state.authenticated = True
@@ -210,14 +213,14 @@ def authenticate_user():
     with register_tab:
         st.header("Register")
         # Register form
-        register_form = st.form(key='register')
-        email = register_form.text_input('Email')
-        password = register_form.text_input('Password', type='password')
-        confirm_password = register_form.text_input('Confirm Password', type='password')
+        register_form = st.form(key="register")
+        email = register_form.text_input("Email")
+        password = register_form.text_input("Password", type="password")
+        confirm_password = register_form.text_input("Confirm Password", type="password")
         # On form submit, process registration details
-        if register_form.form_submit_button('Register'):
+        if register_form.form_submit_button("Register"):
             if password != confirm_password:
-                st.error('Passwords must match')
+                st.error("Passwords must match")
             elif register(email, password):
                 set_cookie()
                 st.session_state.authenticated = True
@@ -241,7 +244,9 @@ def check_cookie() -> None:
     cookie = get_cookie()
     if cookie:
         st.session_state.authenticated = True
-        st.session_state.username = cookie['username']
-        st.session_state.id_token = cookie['id_token']
-        st.session_state.refresh_token = cookie['refresh_token']
-        st.session_state.id_token_expiry = datetime.fromisoformat(cookie['id_token_expiry'])
+        st.session_state.username = cookie["username"]
+        st.session_state.id_token = cookie["id_token"]
+        st.session_state.refresh_token = cookie["refresh_token"]
+        st.session_state.id_token_expiry = datetime.fromisoformat(
+            cookie["id_token_expiry"]
+        )
