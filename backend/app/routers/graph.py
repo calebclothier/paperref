@@ -11,7 +11,7 @@ from app.schemas.graph import GraphResponse
 router = APIRouter()
 
 
-@router.get("", response_model=GraphResponse)
+@router.post("", response_model=GraphResponse)
 def get_graph(paper: Paper, user_id: str = Depends(get_current_user)) -> GraphResponse:
     """
     Fetch a paper and build a citation and reference graphs for a given user.
