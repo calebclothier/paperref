@@ -14,5 +14,7 @@ def get_paper_library(user_id: str = Depends(get_current_user)):
 
 
 @router.post("/papers")
-def save_paper_library(paper_data: list[Paper], user_id: str = Depends(get_current_user)):
+def save_paper_library(
+    paper_data: list[Paper], user_id: str = Depends(get_current_user)
+):
     return save_paper_library_service(user_id, paper_data)

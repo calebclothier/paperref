@@ -1,9 +1,12 @@
-# paperref 
+# paperref
 frontend/src/.streamlit/
 backend/app/.env
 
 # uv lockfile
 uv.lock
+
+# Ruff
+*/.ruff_cache
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -9,6 +9,6 @@ from app.schemas.graph import GraphResponse
 router = APIRouter()
 
 
-@router.get("", response_model=GraphResponse)
+@router.post("", response_model=GraphResponse)
 def get_graph(paper: Paper, user_id: str = Depends(get_current_user)):
     return get_graph_service(paper, user_id)

@@ -6,7 +6,8 @@ from app.routers import auth, graph, papers, recommended
 app = FastAPI(
     title="PaperRef API",
     description="Backend API for PaperRef web app",
-    version="0.1.0")
+    version="0.1.0",
+)
 
 
 # Add all routers

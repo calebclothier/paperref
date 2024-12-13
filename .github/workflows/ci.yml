@@ -1,0 +1,28 @@
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: wntrblm/nox@2024.04.15
+      - name: Lint frontend and backend
+        run: nox -s lint
+  test_backend:
+    name: Test backend
+    runs-on: ubuntu-latest
+    env:
+      FIREBASE_AUTH_URL: ${{ secrets.FIREBASE_AUTH_URL }}
+      FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+      FIREBASE_ADMIN_SDK_KEY: ${{ secrets.FIREBASE_ADMIN_SDK_KEY }}
+      SEMANTIC_SCHOLAR_API_URL: ${{ secrets.SEMANTIC_SCHOLAR_API_URL }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: wntrblm/nox@2024.04.15
+      - name: Test backend
+        run: nox -s tests

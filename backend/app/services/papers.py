@@ -14,9 +14,9 @@ def generate_firestore_id_from_doi(doi: str) -> str:
     Returns:
         str: A base64-encoded representation of the DOI, suitable for use as a Firestore document ID.
     """
-    return base64.urlsafe_b64encode(doi.encode('utf-8')).decode('utf-8').rstrip('=')
-    
-    
+    return base64.urlsafe_b64encode(doi.encode("utf-8")).decode("utf-8").rstrip("=")
+
+
 def get_paper_library_service(user_id: str) -> list[Paper]:
     """
     Retrieves a list of papers for a given user from Firestore.
@@ -38,7 +38,7 @@ def get_paper_library_service(user_id: str) -> list[Paper]:
 
 def save_paper_library_service(user_id: str, paper_data: list[Paper]) -> None:
     """
-    Saves or updates a list of papers for a given user in Firestore. 
+    Saves or updates a list of papers for a given user in Firestore.
     Existing papers not in the provided list are deleted.
 
     Args:
