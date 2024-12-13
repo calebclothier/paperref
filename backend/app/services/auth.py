@@ -121,8 +121,8 @@ def refresh_id_token_service(refresh_token: str):
         # Return valid auth response 
         response = response.json()
         return {
-            'id_token': response['idToken'], 
-            'refresh_token': response['refreshToken'], 
-            'expires_in': response['expiresIn']}
+            'id_token': response['id_token'], 
+            'refresh_token': response['refresh_token'], 
+            'expires_in': response['expires_in']}
     except requests.exceptions.RequestException:
         raise HTTPException(status_code=500, detail="An error occurred during authentication.")
