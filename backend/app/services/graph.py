@@ -1,5 +1,6 @@
 import requests
 import time
+from math import ceil
 
 from fastapi import HTTPException
 
@@ -7,10 +8,6 @@ from app.config import settings
 from app.schemas.papers import Paper, PaperDetail
 from app.schemas.graph import Node, Edge, DirectedGraph, GraphResponse
 
-
-import requests
-from math import ceil
-from fastapi import HTTPException
 
 class PaperBatchFetcher:
     """Fetches paper details in batches from the Semantic Scholar API."""
@@ -205,30 +202,33 @@ def get_graph_service(paper: Paper, user_id: str, num_nodes=20) -> GraphResponse
     
     # Avoid fetching papers with too many citations or references
     max_citations = 500
-    max_references = 200
+    max_references = 500
     cited_papers_to_fetch = [paper_id for paper_id in cited_papers_to_fetch if citation_builder.nodes[paper_id].detail.citation_count < max_citations]
     reference_papers_to_fetch = [paper_id for paper_id in reference_papers_to_fetch if reference_builder.nodes[paper_id].detail.reference_count < max_references]
-
-    time.sleep(1)  # Sleep to avoid API overuse
-    second_level_cited_papers = fetcher.fetch(cited_papers_to_fetch, key='citations')
-    time.sleep(1)  # Sleep to avoid API overuse
-    second_level_reference_papers = fetcher.fetch(reference_papers_to_fetch, key='references')
-        
+    
     # Process second-level papers, adding edges between existing nodes only
-    for paper in second_level_cited_papers:
-        paper_id = paper['paperId']
-        if paper_id in citation_builder.nodes:
-            citation_builder.add_paper_and_edges(paper, include_new_nodes=False, num_nodes=num_nodes)
-    for paper in second_level_reference_papers:
-        if paper_id in reference_builder.nodes:
-            reference_builder.add_paper_and_edges(paper, include_new_nodes=False, num_nodes=num_nodes)
+    if cited_papers_to_fetch:
+        time.sleep(0.5)  # Sleep to avoid API overuse
+        second_level_cited_papers = fetcher.fetch(cited_papers_to_fetch, key='citations')
+        for paper in second_level_cited_papers:
+            paper_id = paper['paperId']
+            if paper_id in citation_builder.nodes:
+                citation_builder.add_paper_and_edges(paper, include_new_nodes=False, num_nodes=num_nodes)
+    if reference_papers_to_fetch:
+        time.sleep(0.5)  # Sleep to avoid API overuse
+        second_level_reference_papers = fetcher.fetch(reference_papers_to_fetch, key='references')
+        for paper in second_level_reference_papers:
+            paper_id = paper['paperId']
+            if paper_id in reference_builder.nodes:
+                reference_builder.add_paper_and_edges(paper, include_new_nodes=False, num_nodes=num_nodes)
+            
             
     return GraphResponse(
         citation_graph=citation_builder.build_graph_response(),
         reference_graph=reference_builder.build_graph_response())
 
 
-def parse_paper_detail(paper: Paper):
+def parse_paper_detail(paper: dict) -> dict:
     """Utility function to parse paper details using the global fields."""
     external_ids = paper['externalIds']
     open_access = paper['openAccessPdf']

@@ -178,5 +178,3 @@ with st.sidebar:
                 st.markdown(f"_TLDR_: {node_detail['tldr'] or ''}")
             elif node_detail['abstract']:
                 st.markdown(f"{node_detail['abstract']}")
-            # st.markdown(node_detail['abstract'])
-            # st.markdown(node_detail)
