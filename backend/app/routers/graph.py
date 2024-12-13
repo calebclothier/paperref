@@ -1,5 +1,5 @@
-"""Routers for graph modules
-"""
+"""Routers for graph modules"""
+
 from fastapi import APIRouter, Depends
 
 from app.firebase import get_current_user

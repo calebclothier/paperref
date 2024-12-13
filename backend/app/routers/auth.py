@@ -1,11 +1,8 @@
-"""Routers for user authentication
-"""
+"""Routers for user authentication"""
+
 from fastapi import APIRouter
 from app.schemas.auth import AuthRequest, AuthResponse
-from app.services.auth import (
-    login_service, 
-    register_service, 
-    refresh_id_token_service)
+from app.services.auth import login_service, register_service, refresh_id_token_service
 
 
 router = APIRouter()
@@ -21,7 +18,7 @@ def login(auth_request: AuthRequest) -> dict:
 
     Returns:
         dict: The auth tokens (id_token, refresh_token, expires_in)
-        
+
     Raises:
         HTTPException: Any error that occurs during authentication.
     """
@@ -38,7 +35,7 @@ def register(auth_request: AuthRequest) -> dict:
 
     Returns:
         dict: The auth tokens (id_token, refresh_token, expires_in)
-        
+
     Raises:
         HTTPException: Any error that occurs during authentication.
     """
@@ -55,7 +52,7 @@ def refresh_id_token(refresh_token: str) -> dict:
 
     Returns:
         dict: The auth tokens (id_token, refresh_token, expires_in)
-        
+
     Raises:
         HTTPException: Any error that occurs during authentication.
     """

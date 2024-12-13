@@ -1,5 +1,5 @@
-""" Entry point for running the FastAPI backend app.
-"""
+"""Entry point for running the FastAPI backend app."""
+
 from fastapi import FastAPI
 from app.routers import auth, graph, papers, recommended
 

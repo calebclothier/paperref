@@ -1,5 +1,5 @@
-""" Firebase verification module for authenticating backend requests
-"""
+"""Firebase verification module for authenticating backend requests"""
+
 import json
 
 from fastapi import HTTPException, Depends
@@ -17,16 +17,19 @@ firebase_app = firebase_admin.initialize_app(cred)
 
 auth_scheme = HTTPBearer()
 
-async def get_current_user(authorization: HTTPAuthorizationCredentials = Depends(auth_scheme)) -> str:
+
+async def get_current_user(
+    authorization: HTTPAuthorizationCredentials = Depends(auth_scheme),
+) -> str:
     """
     Verify the authorization id_token and extract the user_id (uid).
-    
+
     Args:
         authorization (HTTPAuthorizationCredentials): the authorization credentials
-        
+
     Returns:
         str: the user's id
-        
+
     Raises:
         HTTPException: Raises Invalid or expired token
     """
