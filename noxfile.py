@@ -15,6 +15,6 @@ def tests(session: nox.Session) -> None:
     """
     Run the tests.
     """
-    session.cd('backend')
+    session.cd("backend")
     session.install(".[test]")
     session.run("pytest", *session.posargs)
