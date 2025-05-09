@@ -15,7 +15,7 @@ def get_graph_for_paper(selected_paper: dict) -> dict | None:
     then parses the graphs into the format expected by the cytoscape graph rendering library.
 
     Args:
-        selected_paper (dict): The DOI and title of the paper used to build the graph
+        selected_paper (dict): the paper used to build the graph
 
     Returns:
         dict | None: The raw citation/reference graph data, and the parsed cytoscape-compatible versions,

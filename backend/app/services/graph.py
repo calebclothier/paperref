@@ -5,8 +5,9 @@ from math import ceil
 from fastapi import HTTPException
 
 from app.config import settings
-from app.schemas.papers import Paper, PaperDetail
+from app.schemas.papers import Paper
 from app.schemas.graph import Node, Edge, DirectedGraph, GraphResponse
+from app.utils.paper import parse_paper_detail
 
 
 class PaperBatchFetcher:
@@ -51,7 +52,7 @@ class PaperBatchFetcher:
             for field in PaperBatchFetcher.FIELDS
         ]
 
-    def fetch(self, paper_ids: list[int], key="both") -> dict:
+    def fetch(self, paper_ids: list[str], key="both") -> dict:
         """Fetch details for a list of paper IDs (up to 50 at a time)."""
         payload = {"ids": paper_ids}
         if key == "both":
@@ -60,9 +61,11 @@ class PaperBatchFetcher:
             fields = self.citation_fields
         elif key == "references":
             fields = self.reference_fields
+        elif key == "none":
+            fields = self.FIELDS
         else:
             raise ValueError(
-                'Invalid fetch key: must be one of ["both", "citations", "references]'
+                'Invalid fetch key: must be one of ["both", "citations", "references", "none"]'
             )
         params = {"fields": ",".join(fields)}
         try:
@@ -80,14 +83,14 @@ class PaperBatchFetcher:
                 status_code=500, detail=f"Error fetching paper data: {e}"
             )
 
-    def fetch_batched(self, paper_ids: list[int], batch_size=50) -> list[dict]:
+    def fetch_batched(self, paper_ids: list[str], batch_size=50, key="both") -> list[dict]:
         """Fetch details for a list of paper IDs in batches to avoid size limits."""
         results = []
         num_batches = ceil(len(paper_ids) / batch_size)
         for i in range(num_batches):
             batch_ids = paper_ids[i * batch_size : (i + 1) * batch_size]
             try:
-                batch_results = self.fetch(batch_ids)
+                batch_results = self.fetch(batch_ids, key=key)
                 results.extend(batch_results)
                 time.sleep(1)
             except HTTPException as error:
@@ -103,11 +106,11 @@ class BaseGraphBuilder:
         self.edges = []
 
     def add_node(self, paper_data: dict):
-        """Add a node to the graph if it doesn’t already exist."""
+        """Add a node to the graph if it doesn't already exist."""
         paper_id = paper_data["paperId"]
         if paper_id not in self.nodes:
             self.nodes[paper_id] = Node(
-                id=paper_id, detail=PaperDetail(**parse_paper_detail(paper_data))
+                id=paper_id, detail=Paper(**parse_paper_detail(paper_data))
             )
         elif not self.nodes[paper_id].detail.tldr and isinstance(
             paper_data["tldr"], dict
@@ -179,8 +182,17 @@ class CitationGraphBuilder(BaseGraphBuilder):
 class ReferenceGraphBuilder(BaseGraphBuilder):
     """Constructs a directed reference graph from paper data."""
 
-    def add_paper_and_edges(self, source_paper, include_new_nodes=True, num_nodes=-1):
-        """Add a paper and its reference edges."""
+    def add_paper_and_edges(
+        self, source_paper: Paper, include_new_nodes=True, num_nodes=-1
+    ):
+        """Add a paper and its reference edges.
+
+        Args:
+            source_paper (Paper): input paper
+            include_new_nodes (bool): Boolean to include new nodes in the graph from the references
+            num_nodes (int): if -1 then add all references, otherwise add top num_nodes most cited papers
+        """
+
         # First create an ordered list of references based on their "citationCount"
         ordered_references = [
             reference_paper
@@ -192,7 +204,7 @@ class ReferenceGraphBuilder(BaseGraphBuilder):
                 reverse=True,
             )
         ]
-        # Keep the top num_nodes most cited papers in the citations
+        # Keep the top num_nodes most cited papers in the references
         if num_nodes != -1:
             ordered_references = ordered_references[:num_nodes]
         # Add original paper
@@ -210,11 +222,10 @@ class ReferenceGraphBuilder(BaseGraphBuilder):
                 self.add_edge(reference_id, source_id)
 
 
-def get_graph_service(paper: Paper, user_id: str, num_nodes=20) -> GraphResponse:
+def get_graph_service(paper: Paper, num_nodes=20) -> GraphResponse:
     """Fetch papers and build citation and reference graphs for the given user.
     Args:
         paper (Paper): Input paper
-        user_id (str): The user's id.
         num_nodes (int): Number of papers (ordered by their number of citations) to keep
                         in the citation graph of the input paper
 
@@ -227,8 +238,7 @@ def get_graph_service(paper: Paper, user_id: str, num_nodes=20) -> GraphResponse
     citation_builder = CitationGraphBuilder()
     reference_builder = ReferenceGraphBuilder()
     # Initial batch fetch for input papers
-    initial_id = f"DOI:{paper.doi}"
-    initial_papers = fetcher.fetch([initial_id], key="both")
+    initial_papers = fetcher.fetch([paper.id], key="both")
 
     # Add to citation_builder the top num_nodes most cited papers that cite it
     for paper in initial_papers:
@@ -257,65 +267,40 @@ def get_graph_service(paper: Paper, user_id: str, num_nodes=20) -> GraphResponse
         if reference_builder.nodes[paper_id].detail.reference_count < max_references
     ]
 
-    # Process second-level papers, adding edges between existing nodes only
+    # Fetch additional papers if needed
     if cited_papers_to_fetch:
-        time.sleep(0.5)  # Sleep to avoid API overuse
-        second_level_cited_papers = fetcher.fetch(
-            cited_papers_to_fetch, key="citations"
-        )
-        for paper in second_level_cited_papers:
-            paper_id = paper["paperId"]
-            if paper_id in citation_builder.nodes:
-                citation_builder.add_paper_and_edges(
-                    paper, include_new_nodes=False, num_nodes=num_nodes
-                )
+        citation_papers = fetcher.fetch_batched(cited_papers_to_fetch, key="citations")
+        for paper in citation_papers:
+            citation_builder.add_paper_and_edges(
+                paper, include_new_nodes=False, num_nodes=num_nodes
+            )
+
     if reference_papers_to_fetch:
-        time.sleep(0.5)  # Sleep to avoid API overuse
-        second_level_reference_papers = fetcher.fetch(
-            reference_papers_to_fetch, key="references"
-        )
-        for paper in second_level_reference_papers:
-            paper_id = paper["paperId"]
-            if paper_id in reference_builder.nodes:
-                reference_builder.add_paper_and_edges(
-                    paper, include_new_nodes=False, num_nodes=num_nodes
-                )
+        reference_papers = fetcher.fetch_batched(reference_papers_to_fetch, key="references")
+        for paper in reference_papers:
+            reference_builder.add_paper_and_edges(
+                paper, include_new_nodes=False, num_nodes=num_nodes
+            )
 
     return GraphResponse(
         citation_graph=citation_builder.build_graph_response(),
         reference_graph=reference_builder.build_graph_response(),
     )
+    
+    
+def get_references_service(papers: list[Paper]) -> list[Paper]:
+    """Get references for a list of papers."""
+    paper_ids = [paper.id for paper in papers]
+    fetcher = PaperBatchFetcher()
+    results = fetcher.fetch_batched(paper_ids, key="references")
+    references = [ref for paper in results for ref in paper.get("references", []) if ref['paperId']]
+    return [Paper(**parse_paper_detail(ref)) for ref in references]
 
 
-def parse_paper_detail(paper: dict) -> dict:
-    """Utility function to parse paper details using the global fields."""
-    external_ids = paper["externalIds"]
-    open_access = paper["openAccessPdf"]
-    publication_venue = paper["publicationVenue"]
-    doi = None
-    arxiv = None
-    journal = None
-    open_access_url = None
-    tldr = None
-    if isinstance(external_ids, dict):
-        doi = external_ids.get("DOI", None)
-        arxiv = external_ids.get("ArXiv", None)
-    if isinstance(publication_venue, dict):
-        journal = publication_venue.get("name", "")
-    if isinstance(open_access, dict):
-        open_access_url = open_access.get("url", None)
-    if isinstance(paper.get("tldr", None), dict):
-        tldr = paper["tldr"].get("text")
-    return {
-        "doi": doi,
-        "arxiv": arxiv,
-        "title": paper["title"],
-        "authors": [author["name"] for author in paper["authors"]],
-        "abstract": paper["abstract"],
-        "year": paper["year"],
-        "reference_count": paper["referenceCount"],
-        "citation_count": paper["citationCount"],
-        "journal": journal,
-        "open_access_url": open_access_url,
-        "tldr": tldr,
-    }
+def get_citations_service(papers: list[Paper]) -> list[Paper]:
+    """Get references for a list of papers."""
+    paper_ids = [paper.id for paper in papers]
+    fetcher = PaperBatchFetcher()
+    results = fetcher.fetch_batched(paper_ids, key="citations")
+    citations = [citation for paper in results for citation in paper.get("citations", []) if citation['paperId']]
+    return [Paper(**parse_paper_detail(citation)) for citation in citations]

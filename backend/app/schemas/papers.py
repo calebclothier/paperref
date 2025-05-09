@@ -3,15 +3,11 @@ from typing import Optional
 
 
 class Paper(BaseModel):
-    doi: str
-    title: str
-
-
-class PaperDetail(BaseModel):
+    id: str
+    title: str  # Required field
     doi: Optional[str] = None
     arxiv: Optional[str] = None
-    title: str
-    authors: list[str]
+    authors: Optional[list[str]] = None
     abstract: Optional[str] = None
     year: Optional[int] = None
     publication_date: Optional[str] = None

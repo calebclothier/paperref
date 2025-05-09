@@ -1,11 +1,11 @@
 from pydantic import BaseModel
 
-from app.schemas.papers import PaperDetail
+from app.schemas.papers import Paper
 
 
 class Node(BaseModel):
     id: str  # Unique identifier for the node
-    detail: PaperDetail
+    detail: Paper
 
 
 class Edge(BaseModel):

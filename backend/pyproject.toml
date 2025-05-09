@@ -9,6 +9,12 @@ dependencies = [
     "requests",
     "google-cloud-firestore",
     "firebase-admin",
+    "faiss-cpu",
+    "rank-llm",
+    "langchain",
+    "langchain-core",
+    "langchain-openai",
+    "langchain-community"
 ]
 
 [project.optional-dependencies]

@@ -4,7 +4,7 @@ import streamlit as st
 st.set_page_config(page_title="Recommended", page_icon="💡", layout="wide")
 
 from src.api.auth import check_cookie
-from src.api.library import get_recommendations_for_user
+from src.api.library import get_recommendations
 
 
 # add logo to top left corner
@@ -27,7 +27,7 @@ if not st.session_state.get("authenticated", False):
 
 # fetch recommendations from backend
 if st.session_state.get("recommended_papers", None) is None:
-    st.session_state.recommended_papers = get_recommendations_for_user()
+    st.session_state.recommended_papers = get_recommendations()
 
 # display recommended papers
 st.dataframe(
