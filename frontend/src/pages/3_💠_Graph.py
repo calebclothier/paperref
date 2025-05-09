@@ -8,7 +8,7 @@ st.set_page_config(page_title="Citation Graph", page_icon="💠", layout="wide")
 from st_cytoscape import cytoscape
 
 from src.api.auth import check_cookie
-from src.api.library import load_library_for_user
+from src.api.library import get_library
 from src.api.graph import get_graph_for_paper
 
 
@@ -30,7 +30,7 @@ if not st.session_state.get("authenticated", False):
 
 # load paper library if not in session_state
 if st.session_state.get("papers_df", None) is None:
-    st.session_state.papers_df = load_library_for_user()
+    st.session_state.papers_df = get_library()
 
 
 # inject markdown for custom page styling

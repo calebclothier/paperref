@@ -1,22 +1,81 @@
 """Paper services for managing a user's paper library in Firestore."""
 
-import base64
+import requests
+import time
+from fastapi import HTTPException
 
 from app.database.firestore import db
 from app.schemas.papers import Paper
+from app.utils.paper import parse_paper_detail
+from app.config import settings
 
 
-def generate_firestore_id_from_doi(doi: str) -> str:
+def search_papers_service(
+    query: str,
+    limit: int = 5,
+) -> list[Paper]:
     """
-    Generates a Firestore-friendly ID from a DOI by encoding it with base64.
+    Search for papers using the Semantic Scholar API.
 
     Args:
-        doi (str): The DOI of the paper.
+        query (str): The search query string
+        limit (int): Maximum number of results to return (default: 5)
 
     Returns:
-        str: A base64-encoded representation of the DOI, suitable for use as a Firestore document ID.
+        list[Paper]: List of Paper objects matching the search query
     """
-    return base64.urlsafe_b64encode(doi.encode("utf-8")).decode("utf-8").rstrip("=")
+    base_url = f"{settings.SEMANTIC_SCHOLAR_API_URL}/paper/search"
+    fields = [
+        "paperId",
+        "title",
+        "authors",
+        "abstract",
+        "year",
+        "publicationDate",
+        "referenceCount",
+        "citationCount",
+        "publicationVenue",
+        "openAccessPdf",
+        "externalIds",
+        "tldr",
+    ]
+    params = {
+        "query": query,
+        "limit": limit,
+        "fields": ",".join(fields),
+    }
+
+    max_retries = 3
+    retry_delay = 1  # seconds
+
+    for attempt in range(max_retries):
+        try:
+            response = requests.get(base_url, params=params, timeout=10)
+
+            if response.status_code == 429:  # Rate limit exceeded
+                if attempt < max_retries - 1:
+                    time.sleep(retry_delay * (attempt + 1))  # Exponential backoff
+                    continue
+                else:
+                    raise HTTPException(
+                        status_code=429,
+                        detail="Semantic Scholar API rate limit exceeded. Please try again later.",
+                    )
+
+            response.raise_for_status()
+            data = response.json()
+            papers = []
+            for paper_data in data.get("data", []):
+                paper = Paper(**parse_paper_detail(paper_data))
+                papers.append(paper)
+            return papers
+
+        except requests.RequestException as e:
+            if attempt == max_retries - 1:
+                raise HTTPException(
+                    status_code=500, detail=f"Error searching papers: {e}"
+                )
+            time.sleep(retry_delay * (attempt + 1))
 
 
 def get_paper_library_service(user_id: str) -> list[Paper]:
@@ -38,24 +97,31 @@ def get_paper_library_service(user_id: str) -> list[Paper]:
     return paper_list
 
 
-def save_paper_library_service(user_id: str, paper_data: list[Paper]) -> None:
+def add_paper_to_library_service(user_id: str, paper: Paper) -> None:
     """
-    Saves or updates a list of papers for a given user in Firestore.
-    Existing papers not in the provided list are deleted.
+    Adds a single paper to a user's library in Firestore.
 
     Args:
-        user_id (str): The ID of the user whose paper library is to be saved.
-        paper_data (list[Paper]): A list of Paper objects to be saved or updated in the user's library.
+        user_id (str): The ID of the user whose library is to be updated.
+        paper (Paper): The Paper object to be added to the library.
 
     Returns:
         None
     """
     papers_ref = db.collection("users").document(user_id).collection("papers")
-    saved_papers = papers_ref.stream()
-    ids_to_keep = [generate_firestore_id_from_doi(paper.doi) for paper in paper_data]
-    for paper in saved_papers:
-        if paper.id not in ids_to_keep:
-            papers_ref.document(paper.id).delete()
-    for paper in paper_data:
-        paper_id = generate_firestore_id_from_doi(paper.doi)
-        papers_ref.document(paper_id).set(paper.model_dump())
+    papers_ref.document(paper.id).set(paper.model_dump())
+
+
+def delete_paper_from_library_service(user_id: str, paper_id: str) -> None:
+    """
+    Deletes a single paper from a user's library in Firestore.
+
+    Args:
+        user_id (str): The ID of the user whose library is to be updated.
+        paper_id (str): The ID of the paper to be deleted.
+
+    Returns:
+        None
+    """
+    papers_ref = db.collection("users").document(user_id).collection("papers")
+    papers_ref.document(paper_id).delete()
