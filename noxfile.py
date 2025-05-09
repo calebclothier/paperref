@@ -10,7 +10,7 @@ def lint(session: nox.Session) -> None:
     session.run("pre-commit", "run", "--all-files", *session.posargs)
 
 
-@nox.session
+@nox.session(python="3.11")
 def tests(session: nox.Session) -> None:
     """
     Run the tests.

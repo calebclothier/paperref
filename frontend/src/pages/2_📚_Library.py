@@ -35,6 +35,7 @@ if not st.session_state.get("authenticated", False):
 # Get library from backend
 if not st.session_state.get("library_loaded", False):
     papers_df = get_library()
+    print(papers_df.to_dict())
     st.session_state["papers_df"] = papers_df
     st.session_state["library_loaded"] = True
 
