@@ -5,7 +5,7 @@ from app.services.papers import (
     get_paper_library_service,
     search_papers_service,
     add_paper_to_library_service,
-    delete_paper_from_library_service
+    delete_paper_from_library_service,
 )
 from app.schemas.papers import Paper
 
@@ -36,17 +36,14 @@ def get_paper_library(user_id: str = Depends(get_current_user)) -> list[Paper]:
 
 
 @router.post("/papers/add", response_model=Paper)
-def add_paper_to_library(
-    paper: Paper,
-    user_id: str = Depends(get_current_user)
-):
+def add_paper_to_library(paper: Paper, user_id: str = Depends(get_current_user)):
     """
     Add a single paper to the user's library.
-    
+
     Args:
         paper (Paper): The paper to add to the library
         user_id (str): The ID of the current user
-        
+
     Returns:
         Paper: The added paper
     """
@@ -55,23 +52,19 @@ def add_paper_to_library(
         return paper
     except Exception as e:
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to add paper to library: {str(e)}"
+            status_code=500, detail=f"Failed to add paper to library: {str(e)}"
         )
 
 
 @router.delete("/papers/{paper_id}")
-def delete_paper_from_library(
-    paper_id: str,
-    user_id: str = Depends(get_current_user)
-):
+def delete_paper_from_library(paper_id: str, user_id: str = Depends(get_current_user)):
     """
     Delete a single paper from the user's library.
-    
+
     Args:
         paper_id (str): The ID of the paper to delete
         user_id (str): The ID of the current user
-        
+
     Returns:
         dict: A message confirming the deletion
     """
@@ -80,23 +73,24 @@ def delete_paper_from_library(
         return {"message": f"Paper {paper_id} successfully deleted from library"}
     except Exception as e:
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to delete paper from library: {str(e)}"
+            status_code=500, detail=f"Failed to delete paper from library: {str(e)}"
         )
 
 
 @router.get("/search", response_model=list[Paper])
 def search_papers(
     query: str = Query(..., description="The search query string"),
-    limit: int = Query(5, ge=1, le=100, description="Maximum number of results to return"),
+    limit: int = Query(
+        5, ge=1, le=100, description="Maximum number of results to return"
+    ),
 ):
     """
     Search for papers using the Semantic Scholar API.
-    
+
     Args:
         query (str): The search query string
         limit (int): Maximum number of results to return (default: 5)
-        
+
     Returns:
         list[Paper]: List of papers matching the search query
     """
@@ -104,4 +98,3 @@ def search_papers(
         query=query,
         limit=limit,
     )
-

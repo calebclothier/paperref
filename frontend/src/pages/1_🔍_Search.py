@@ -35,20 +35,18 @@ if "last_search_query" not in st.session_state:
 # Create a container for the search section
 with st.container():
     # Create two columns for the search interface
-    search_col, button_col = st.columns([0.8, 0.2], vertical_alignment='bottom')
-    
+    search_col, button_col = st.columns([0.8, 0.2], vertical_alignment="bottom")
+
     with search_col:
         # Search box
         search_query = st.text_input(
-            "Search for papers",
-            placeholder="Enter search terms...",
-            key="search_query"
+            "Search for papers", placeholder="Enter search terms...", key="search_query"
         )
-    
+
     with button_col:
         # Search button
         button = st.button("Search", use_container_width=True)
-        
+
         # Handle search button click
         if button:
             if search_query and search_query.strip():
@@ -67,7 +65,7 @@ if st.session_state.search_results:
                 paper,
                 show_add_button=True,
                 on_add=lambda p=paper: add_paper(p),
-                button_key=f"search_result_{idx}_{paper['id']}"
+                button_key=f"search_result_{idx}_{paper['id']}",
             )
 elif st.session_state.last_search_query:
     st.info("No papers found matching your search.")

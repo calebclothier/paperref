@@ -100,7 +100,9 @@ def delete_paper(paper_id: str) -> bool:
         if response.status_code == 200:
             return True
         else:
-            st.error(response.json().get("detail", "Unable to delete paper from library."))
+            st.error(
+                response.json().get("detail", "Unable to delete paper from library.")
+            )
     except requests.exceptions.RequestException:
         st.error("Unable to delete paper from library.")
     return False

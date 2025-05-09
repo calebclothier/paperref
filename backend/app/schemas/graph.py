@@ -21,6 +21,7 @@ class Edge(BaseModel):
         source (str): The id of the source node
         target (str): The id of the target node
     """
+
     source: str
     target: str
 
@@ -36,6 +37,7 @@ class DirectedGraph(BaseModel):
         max_citations (int): maximum number of citations or edges
                              a single paper (node) can have
     """
+
     nodes: list[Node]
     edges: list[Edge]
     max_citations: int
@@ -50,5 +52,6 @@ class GraphResponse(BaseModel):
         citation_graph (DirectedGraph): Citation graph for a given paper
         reference_graph (DirectedGraph): Reference graph for a given paper
     """
+
     citation_graph: DirectedGraph
     reference_graph: DirectedGraph

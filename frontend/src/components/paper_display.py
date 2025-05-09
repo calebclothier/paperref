@@ -4,8 +4,6 @@ import streamlit as st
 
 from typing import Optional
 
-from src.api.library import add_paper
-
 
 def _render_paper_content(
     paper: dict,
@@ -15,10 +13,10 @@ def _render_paper_content(
     on_remove: Optional[callable] = None,
     button_key: Optional[str] = None,
     link_columns: int = 5,  # Number of columns for links
-    header_with_button: bool = True # Whether header includes a button column
+    header_with_button: bool = True,  # Whether header includes a button column
 ) -> None:
     """Helper function to render the core paper content."""
-    
+
     # Generate unique key for buttons based on paper DOI or provided key
     button_key = button_key or f"paper_{paper.get('doi', 'unknown')}"
 
@@ -26,59 +24,62 @@ def _render_paper_content(
     if header_with_button:
         header_col, button_col = st.columns([0.9, 0.1])
     else:
-        header_col = st.container() # Use a container to keep indentation consistent
-        
+        header_col = st.container()  # Use a container to keep indentation consistent
 
     with header_col:
         # Title
         st.markdown(f"#### {paper['title']}")
-        
+
         # Authors
-        if paper.get('authors'):
-            st.markdown(", ".join(paper['authors']))
-            
+        if paper.get("authors"):
+            st.markdown(", ".join(paper["authors"]))
+
         # Journal and year
-        if paper.get('journal'):
+        if paper.get("journal"):
             st.markdown(f"{paper.get('year', '')}, _{paper['journal']}_")
         else:
             st.markdown(f"{paper.get('year', '')}")
-        
+
         # Citation count
-        if paper.get('citation_count'):
+        if paper.get("citation_count"):
             st.markdown(f"{paper['citation_count']} citations")
-    
+
     # Add button in header if configured
     if header_with_button and show_add_button and on_add:
         with button_col:
-            st.button("", 
+            st.button(
+                "",
                 icon=":material/add:",
                 on_click=on_add,
-                key=f"add_{button_key}", 
-                use_container_width=True)
-            
+                key=f"add_{button_key}",
+                use_container_width=True,
+            )
+
     # Links
     links = []
-    if paper.get('arxiv'):
-        links.extend([
-            {
-                "label": "",
-                "icon": ":material/picture_as_pdf:",
-                "url": f"https://arxiv.org/pdf/{paper['arxiv']}"
-            },
-            {
-                "label": "**X**",
-                "help": "ArXiv",
-                "icon": None,
-                "url": f"https://arxiv.org/abs/{paper['arxiv']}"
-            }
-        ])
+    if paper.get("arxiv"):
+        links.extend(
+            [
+                {
+                    "label": "",
+                    "icon": ":material/picture_as_pdf:",
+                    "url": f"https://arxiv.org/pdf/{paper['arxiv']}",
+                },
+                {
+                    "label": "**X**",
+                    "help": "ArXiv",
+                    "icon": None,
+                    "url": f"https://arxiv.org/abs/{paper['arxiv']}",
+                },
+            ]
+        )
     # if paper.get('open_access_url'):
     #     links.append({
     #         "label": "Open Access",
     #         "icon": ":material/picture_as_pdf:",
     #         "url": paper['open_access_url']
     #     })
-    
+
     if links:
         cols = st.columns(link_columns)
         # Render each link in its own column
@@ -88,27 +89,28 @@ def _render_paper_content(
                     label=link["label"],
                     icon=link["icon"],
                     url=link["url"],
-                    use_container_width=True
+                    use_container_width=True,
                 )
-    
+
     # TLDR
-    if paper.get('tldr'):
+    if paper.get("tldr"):
         st.markdown(f"_TLDR_: {paper['tldr']}")
-    
+
     # Abstract in expandable section
-    if paper.get('abstract'):
+    if paper.get("abstract"):
         with st.expander("Abstract", expanded=False):
-            st.markdown(paper['abstract'])
-            
+            st.markdown(paper["abstract"])
+
     # Remove button at the bottom if configured
     if not header_with_button and show_remove_button and on_remove:
         # st.divider()
-        st.button("Remove from Library", 
+        st.button(
+            "Remove from Library",
             icon=":material/remove:",
             on_click=on_remove,
-            key=f"remove_{button_key}", 
-            use_container_width=True)
-
+            key=f"remove_{button_key}",
+            use_container_width=True,
+        )
 
 
 def display_paper(
@@ -116,12 +118,12 @@ def display_paper(
     show_add_button: bool = False,
     on_add: Optional[callable] = None,
     button_key: Optional[str] = None,
-    use_container: bool = True
+    use_container: bool = True,
 ) -> None:
     """
     Display paper details in an aesthetically pleasing container.
     Typically used for search results.
-    
+
     Args:
         paper (Optional[dict]): The paper data to display, or None if no results
         show_add_button (bool): Whether to show the add to library button
@@ -141,8 +143,8 @@ def display_paper(
                 show_add_button=show_add_button,
                 on_add=on_add,
                 button_key=button_key,
-                link_columns=5, # Standalone uses 5 columns for links
-                header_with_button=True
+                link_columns=5,  # Standalone uses 5 columns for links
+                header_with_button=True,
             )
     else:
         _render_paper_content(
@@ -151,9 +153,9 @@ def display_paper(
             on_add=on_add,
             button_key=button_key,
             link_columns=5,
-            header_with_button=True
+            header_with_button=True,
         )
-        
+
 
 def display_paper_sidebar(
     paper: Optional[dict],
@@ -163,7 +165,7 @@ def display_paper_sidebar(
     """
     Display paper details specifically formatted for the sidebar.
     Includes a remove button at the bottom.
-    
+
     Args:
         paper (Optional[dict]): The paper data to display, or None if no results
         on_remove (Optional[callable]): Callback function when remove button is clicked
@@ -178,6 +180,6 @@ def display_paper_sidebar(
         show_remove_button=True,
         on_remove=on_remove,
         button_key=button_key,
-        link_columns=3, # Sidebar uses 3 columns for links
-        header_with_button=False # Sidebar doesn't have button in header
+        link_columns=3,  # Sidebar uses 3 columns for links
+        header_with_button=False,  # Sidebar doesn't have button in header
     )

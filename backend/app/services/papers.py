@@ -44,14 +44,14 @@ def search_papers_service(
         "limit": limit,
         "fields": ",".join(fields),
     }
-    
+
     max_retries = 3
     retry_delay = 1  # seconds
-    
+
     for attempt in range(max_retries):
         try:
             response = requests.get(base_url, params=params, timeout=10)
-            
+
             if response.status_code == 429:  # Rate limit exceeded
                 if attempt < max_retries - 1:
                     time.sleep(retry_delay * (attempt + 1))  # Exponential backoff
@@ -59,9 +59,9 @@ def search_papers_service(
                 else:
                     raise HTTPException(
                         status_code=429,
-                        detail="Semantic Scholar API rate limit exceeded. Please try again later."
+                        detail="Semantic Scholar API rate limit exceeded. Please try again later.",
                     )
-            
+
             response.raise_for_status()
             data = response.json()
             papers = []
@@ -69,12 +69,11 @@ def search_papers_service(
                 paper = Paper(**parse_paper_detail(paper_data))
                 papers.append(paper)
             return papers
-            
+
         except requests.RequestException as e:
             if attempt == max_retries - 1:
                 raise HTTPException(
-                    status_code=500,
-                    detail=f"Error searching papers: {e}"
+                    status_code=500, detail=f"Error searching papers: {e}"
                 )
             time.sleep(retry_delay * (attempt + 1))
 

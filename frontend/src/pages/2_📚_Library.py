@@ -6,8 +6,12 @@ st.set_page_config(page_title="Paper Library", page_icon="📚", layout="wide")
 from src.api.auth import check_cookie
 from src.api.library import get_library, delete_paper
 from src.components.paper_display import display_paper_sidebar
-from src.utils.papers import format_title, get_first_author, get_last_author, get_best_link
-
+from src.utils.papers import (
+    format_title,
+    get_first_author,
+    get_last_author,
+    get_best_link,
+)
 
 
 # add logo to top left corner
@@ -40,14 +44,31 @@ if st.session_state["papers_df"] is None or st.session_state["papers_df"].empty:
     st.stop()
 
 # Format rows
-st.session_state["papers_df"]['title'] = st.session_state["papers_df"]['title'].apply(format_title)
-st.session_state["papers_df"]['first_author'] = st.session_state["papers_df"]['authors'].apply(get_first_author)
-st.session_state["papers_df"]['last_author'] = st.session_state["papers_df"]['authors'].apply(get_last_author)
-st.session_state["papers_df"]['best_link'] = st.session_state["papers_df"].apply(get_best_link, axis=1)
+st.session_state["papers_df"]["title"] = st.session_state["papers_df"]["title"].apply(
+    format_title
+)
+st.session_state["papers_df"]["first_author"] = st.session_state["papers_df"][
+    "authors"
+].apply(get_first_author)
+st.session_state["papers_df"]["last_author"] = st.session_state["papers_df"][
+    "authors"
+].apply(get_last_author)
+st.session_state["papers_df"]["best_link"] = st.session_state["papers_df"].apply(
+    get_best_link, axis=1
+)
 
 # Display the dataframe with selection enabled
 event = st.dataframe(
-    st.session_state["papers_df"][["title", "first_author", "last_author", "journal", "citation_count", "publication_date"]],
+    st.session_state["papers_df"][
+        [
+            "title",
+            "first_author",
+            "last_author",
+            "journal",
+            "citation_count",
+            "publication_date",
+        ]
+    ],
     column_config={
         "title": st.column_config.TextColumn("Title", width="large"),
         "first_author": st.column_config.TextColumn("First Author", width="small"),
@@ -65,13 +86,15 @@ event = st.dataframe(
 # Update selected paper when a row is selected
 if event.selection.rows:
     selected_idx = event.selection.rows[0]
-    st.session_state.selected_paper = st.session_state["papers_df"].iloc[selected_idx].to_dict()
+    st.session_state.selected_paper = (
+        st.session_state["papers_df"].iloc[selected_idx].to_dict()
+    )
 
 # If a paper is selected, display its details in the sidebar
 if st.session_state.get("selected_paper", None):
     with st.sidebar:
         display_paper_sidebar(
             st.session_state.selected_paper,
-            on_remove=lambda p=st.session_state.selected_paper: delete_paper(p['id']),
+            on_remove=lambda p=st.session_state.selected_paper: delete_paper(p["id"]),
             button_key=f"selected_{st.session_state.selected_paper['id']}",
         )

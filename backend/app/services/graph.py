@@ -116,7 +116,9 @@ class PaperBatchFetcher:
                 status_code=500, detail=f"Error fetching paper data: {e}"
             )
 
-    def fetch_batched(self, paper_ids: list[int], batch_size=50, key="both") -> list[dict]:
+    def fetch_batched(
+        self, paper_ids: list[int], batch_size=50, key="both"
+    ) -> list[dict]:
         """
         Fetch details for a list of paper IDs in batches to avoid size limits.
         Uses key='both' for fetch function.
@@ -285,7 +287,7 @@ class ReferenceGraphBuilder(BaseGraphBuilder):
     def add_paper_and_edges(self, source_paper, include_new_nodes=True, num_nodes=-1):
         """
         Add a paper and its reference edges.
-        
+
         Args:
             source_paper (Paper): input paper
             include_new_nodes (bool): Boolean to include new nodes in the graph from the references
@@ -374,7 +376,9 @@ def get_graph_service(paper: Paper, num_nodes=20) -> GraphResponse:
             )
 
     if reference_papers_to_fetch:
-        reference_papers = fetcher.fetch_batched(reference_papers_to_fetch, key="references")
+        reference_papers = fetcher.fetch_batched(
+            reference_papers_to_fetch, key="references"
+        )
         for paper in reference_papers:
             reference_builder.add_paper_and_edges(
                 paper, include_new_nodes=False, num_nodes=num_nodes
@@ -384,14 +388,19 @@ def get_graph_service(paper: Paper, num_nodes=20) -> GraphResponse:
         citation_graph=citation_builder.build_graph_response(),
         reference_graph=reference_builder.build_graph_response(),
     )
-    
-    
+
+
 def get_references_service(papers: list[Paper]) -> list[Paper]:
     """Get references for a list of papers."""
     paper_ids = [paper.id for paper in papers]
     fetcher = PaperBatchFetcher()
     results = fetcher.fetch_batched(paper_ids, key="references")
-    references = [ref for paper in results for ref in paper.get("references", []) if ref['paperId']]
+    references = [
+        ref
+        for paper in results
+        for ref in paper.get("references", [])
+        if ref["paperId"]
+    ]
     return [Paper(**parse_paper_detail(ref)) for ref in references]
 
 
@@ -400,5 +409,10 @@ def get_citations_service(papers: list[Paper]) -> list[Paper]:
     paper_ids = [paper.id for paper in papers]
     fetcher = PaperBatchFetcher()
     results = fetcher.fetch_batched(paper_ids, key="citations")
-    citations = [citation for paper in results for citation in paper.get("citations", []) if citation['paperId']]
+    citations = [
+        citation
+        for paper in results
+        for citation in paper.get("citations", [])
+        if citation["paperId"]
+    ]
     return [Paper(**parse_paper_detail(citation)) for citation in citations]

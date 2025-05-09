@@ -1,4 +1,3 @@
-
 def format_title(title):
     """
     Format a paper title to remove \n and \r characters.
@@ -6,6 +5,7 @@ def format_title(title):
     if not title:
         return ""
     return title.replace("\n", " ").replace("\r", "")
+
 
 def format_author(author):
     """Helper function to format a single author name."""
@@ -34,16 +34,16 @@ def get_last_author(authors_list):
 def format_authors(authors_list):
     """
     Format a list of authors to show first and last author with ellipsis for papers with more than two authors.
-    
+
     Args:
         authors_list (list): List of author names
-        
+
     Returns:
         str: Formatted author string
     """
     if not authors_list:
         return ""
-    
+
     if len(authors_list) > 2:
         # Show first and last author with ellipsis
         first_author = get_first_author(authors_list)
@@ -62,15 +62,15 @@ def get_best_link(paper):
     Get the best available link for a paper based on precedence:
     1. ArXiv PDF
     2. Open Access PDF
-    
+
     Args:
         paper (dict): Paper data
-        
+
     Returns:
         str: Best available link URL or None
     """
-    if paper.get('arxiv'):
+    if paper.get("arxiv"):
         return f"https://arxiv.org/pdf/{paper['arxiv']}"
-    elif paper.get('open_access_url'):
-        return paper['open_access_url']
+    elif paper.get("open_access_url"):
+        return paper["open_access_url"]
     return None
