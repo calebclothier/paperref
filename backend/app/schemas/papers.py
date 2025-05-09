@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import Optional
 
 
-class PaperDetail(BaseModel):
+class Paper(BaseModel):
     id: str
     title: str
     doi: Optional[str] = None
