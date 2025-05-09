@@ -73,11 +73,7 @@ class PaperBatchFetcher:
             for field in PaperBatchFetcher.FIELDS
         ]
 
-<<<<<<< HEAD
     def fetch(self, paper_ids: list[str], key="both") -> dict:
-        """Fetch details for a list of paper IDs (up to 50 at a time)."""
-=======
-    def fetch(self, paper_ids: list[int], key="both") -> dict:
         """
         Fetch details for a list of paper IDs (up to 50 at a time).
 
@@ -91,7 +87,6 @@ class PaperBatchFetcher:
         Raises:
             HTTPException: Any error fetching paper data
         """
->>>>>>> d0be991 (add: added docstrings and static typying (#15))
         payload = {"ids": paper_ids}
         if key == "both":
             fields = self.all_fields
@@ -121,11 +116,7 @@ class PaperBatchFetcher:
                 status_code=500, detail=f"Error fetching paper data: {e}"
             )
 
-<<<<<<< HEAD
-    def fetch_batched(self, paper_ids: list[str], batch_size=50, key="both") -> list[dict]:
-        """Fetch details for a list of paper IDs in batches to avoid size limits."""
-=======
-    def fetch_batched(self, paper_ids: list[int], batch_size=50) -> list[dict]:
+    def fetch_batched(self, paper_ids: list[int], batch_size=50, key="both") -> list[dict]:
         """
         Fetch details for a list of paper IDs in batches to avoid size limits.
         Uses key='both' for fetch function.
@@ -140,7 +131,6 @@ class PaperBatchFetcher:
         Raises:
             HTTPException: Any error fetching paper data
         """
->>>>>>> d0be991 (add: added docstrings and static typying (#15))
         results = []
         num_batches = ceil(len(paper_ids) / batch_size)
         for i in range(num_batches):
@@ -168,9 +158,6 @@ class BaseGraphBuilder:
         self.edges = []
 
     def add_node(self, paper_data: dict):
-<<<<<<< HEAD
-        """Add a node to the graph if it doesn't already exist."""
-=======
         """
         Add a node to the graph if it doesn’t already exist.
 
@@ -181,7 +168,6 @@ class BaseGraphBuilder:
             None
 
         """
->>>>>>> d0be991 (add: added docstrings and static typying (#15))
         paper_id = paper_data["paperId"]
         if paper_id not in self.nodes:
             self.nodes[paper_id] = Node(
@@ -296,32 +282,15 @@ class ReferenceGraphBuilder(BaseGraphBuilder):
         (see BaseGraphBuilder)
     """
 
-<<<<<<< HEAD
-    def add_paper_and_edges(
-        self, source_paper: Paper, include_new_nodes=True, num_nodes=-1
-    ):
-        """Add a paper and its reference edges.
-
+    def add_paper_and_edges(self, source_paper, include_new_nodes=True, num_nodes=-1):
+        """
+        Add a paper and its reference edges.
+        
         Args:
             source_paper (Paper): input paper
             include_new_nodes (bool): Boolean to include new nodes in the graph from the references
             num_nodes (int): if -1 then add all references, otherwise add top num_nodes most cited papers
         """
-
-=======
-    def add_paper_and_edges(self, source_paper, include_new_nodes=True, num_nodes=-1):
-        """
-        Add a paper and its reference edges.
-
-        Args:
-            source_paper (Paper): input paper
-            include_new_nodes (bool): Boolean to include new nodes in the graph from the citations
-            num_nodes (int): if -1 then add all citations, otherwise add top num_nodes most cited papers
-
-        Returns:
-            None
-        """
->>>>>>> d0be991 (add: added docstrings and static typying (#15))
         # First create an ordered list of references based on their "citationCount"
         ordered_references = [
             reference_paper

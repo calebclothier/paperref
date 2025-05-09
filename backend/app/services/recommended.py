@@ -1,7 +1,8 @@
+"""Recommended paper services for generating a user's recommended papers list based on a list of user input papers."""
+
 import os
 import requests
 from fastapi import HTTPException
-
 
 from app.config import settings
 from app.schemas.papers import Paper
@@ -16,13 +17,24 @@ from langchain.retrievers.contextual_compression import ContextualCompressionRet
 from langchain_community.document_compressors.rankllm_rerank import RankLLMRerank
 
 
+def get_paper_recommendations_service(user_papers: list[Paper]) -> list[Paper]:
+    """
+    Generates a list of recommended papers based on an input list of user papers.
 
-def get_paper_recommendations_service(user_papers: list[Paper]):
+    Args:
+        user_papers (list[Paper]): List of user papers
+
+    Returns:
+        list[Paper]: List of recommended papers
+
+    Raises:
+        HTTPException: Raises any exception during recommendation fetching
+    """
     return get_custom_recommendations(user_papers)
 
         
 def get_semantic_scholar_recommendations(user_papers: list[Paper]):
-    paper_ids = [f"DOI:{paper.doi}" for paper in user_papers]
+    paper_ids = [paper.id for paper in user_papers]
     payload = {"positivePaperIds": paper_ids, "negativePaperIds": []}
     base_url = "https://api.semanticscholar.org/recommendations/v1/papers"
     fields = ["title", "authors", "year", "publicationDate", "url", "citationCount"]
