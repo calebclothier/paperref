@@ -15,8 +15,7 @@ class Node(BaseModel):
 class Edge(BaseModel):
     """
     This class creates an edge object to represent a
-    link between two nodes, and inherits from pydantic's
-    BaseModel.
+    link between two nodes.
 
     Attributes:
         source (str): The id of the source node
@@ -29,7 +28,7 @@ class Edge(BaseModel):
 class DirectedGraph(BaseModel):
     """
     This class creates a graph object to represent a list of nodes and
-    edges. Also inherits from pydantic's BaseModel.
+    edges.
 
     Attributes:
         nodes (list[Node]): List of nodes in the graph
@@ -45,8 +44,7 @@ class DirectedGraph(BaseModel):
 class GraphResponse(BaseModel):
     """
     This class creates an object to represent a paper's citation graph
-    and also a reference graph using the DirectedGraph object. Also
-    inherits from pydantic's BaseModel.
+    and also a reference graph using the DirectedGraph object.
 
     Attributes:
         citation_graph (DirectedGraph): Citation graph for a given paper

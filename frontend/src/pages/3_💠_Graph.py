@@ -78,7 +78,6 @@ with st.container(key="search_container"):
     # button to build graph
     if col2.button(label="Build", use_container_width=True):
         # load graph from backend
-        print(selected_paper)
         data = get_graph_for_paper(selected_paper)
         # save graph data to session state
         st.session_state.citation_graph = data["citation_graph"]

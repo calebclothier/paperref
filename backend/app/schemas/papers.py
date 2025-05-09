@@ -1,3 +1,5 @@
+"""Classes to manage the paper's data."""
+
 from pydantic import BaseModel
 from typing import Optional
 

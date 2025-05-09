@@ -1,3 +1,5 @@
+"""Paper services for managing a user's paper library in Firestore."""
+
 import requests
 import time
 from fastapi import HTTPException

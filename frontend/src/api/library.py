@@ -76,6 +76,7 @@ def add_paper(paper: dict) -> bool:
     return False
 
 
+<<<<<<< HEAD
 def delete_paper(paper_id: str) -> bool:
     """
     Deletes a single paper from the user's library.
@@ -113,6 +114,9 @@ def get_recommendations() -> list[dict] | None:
     Returns:
         pd.DataFrame: A DataFrame containing recommended papers, or None if the request fails.
     """
+=======
+def get_recommendations_for_user() -> list[dict] | None:
+>>>>>>> main
     # check and refresh id_token if necessary
     check_id_token()
     # backend GET request

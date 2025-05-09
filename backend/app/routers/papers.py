@@ -14,7 +14,17 @@ router = APIRouter()
 
 
 @router.get("/papers", response_model=list[Paper])
-def get_paper_library(user_id: str = Depends(get_current_user)):
+def get_paper_library(user_id: str = Depends(get_current_user)) -> list[Paper]:
+    """
+    Retrieves a list of papers for a given user from Firestore.
+    Note that a valid user_id is needed to call this function.
+
+    Args:
+        user_id (str): The ID of the user whose paper library is to be fetched.
+
+    Returns:
+        list[Paper]: A list of Paper objects retrieved from the user's Firestore library.
+    """
     return get_paper_library_service(user_id)
 
 
